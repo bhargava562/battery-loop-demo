@@ -1,0 +1,132 @@
+@import './tokens.css';
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  background-color: var(--bg-warm-paper);
+  color: var(--text-forest-graphite);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Typography Helpers */
+.font-display { font-family: var(--font-display); }
+.font-sans { font-family: var(--font-sans); }
+.font-mono { font-family: var(--font-mono); }
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--text-forest-graphite);
+  line-height: 1.25;
+}
+
+/* Button & interactive components */
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  outline: none;
+  transition: all 0.15s ease-in-out;
+}
+
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 2px solid var(--accent-instrument-teal);
+  outline-offset: 2px;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-quiet-line);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-subtle);
+}
+
+/* Reusable Utility Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-teal {
+  background: var(--accent-teal-light);
+  color: var(--accent-instrument-teal);
+  border: 1px solid rgba(17, 124, 114, 0.25);
+}
+
+.badge-coral {
+  background: var(--accent-coral-light);
+  color: var(--accent-oxide-coral);
+  border: 1px solid rgba(231, 111, 81, 0.3);
+}
+
+.badge-amber {
+  background: var(--signal-amber-light);
+  color: #9E7019;
+  border: 1px solid rgba(217, 164, 65, 0.35);
+}
+
+.badge-red {
+  background: var(--risk-red-light);
+  color: var(--risk-red);
+  border: 1px solid rgba(190, 61, 61, 0.3);
+}
+
+.badge-neutral {
+  background: #E8ECE9;
+  color: var(--text-muted);
+  border: 1px solid var(--border-quiet-line);
+}
+
+/* Card surfaces */
+.surface-card {
+  background: var(--bg-soft-white);
+  border: 1px solid var(--border-quiet-line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.surface-dark {
+  background: var(--bg-dark-petrol);
+  color: var(--text-inverse);
+  border: 1px solid var(--border-dark);
+}

@@ -1,0 +1,52 @@
+:root {
+  /* Color Palette - Industrial Field-Lab Identity */
+  --bg-warm-paper: #F4F1E8;
+  --bg-soft-white: #FFFEFA;
+  --bg-dark-petrol: #163C38;
+  --bg-petrol-hover: #1E4E49;
+  --bg-petrol-active: #0F2D2A;
+  
+  --text-forest-graphite: #172B2A;
+  --text-muted: #5E706E;
+  --text-subtle: #819492;
+  --text-inverse: #F4F1E8;
+  
+  --accent-instrument-teal: #117C72;
+  --accent-teal-light: #E0F2F0;
+  --accent-teal-hover: #0E655D;
+  
+  --accent-oxide-coral: #E76F51;
+  --accent-coral-light: #FDEEE9;
+  --accent-coral-hover: #D2583A;
+  
+  --signal-amber: #D9A441;
+  --signal-amber-light: #FBF4E4;
+  
+  --risk-red: #BE3D3D;
+  --risk-red-light: #F9E8E8;
+  
+  --border-quiet-line: #D5DDD6;
+  --border-subtle: #E2E8E3;
+  --border-dark: #244B46;
+
+  /* Typography */
+  --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+
+  /* Elevation & Shadows */
+  --shadow-sm: 0 1px 3px rgba(23, 43, 42, 0.05);
+  --shadow-md: 0 4px 12px rgba(23, 43, 42, 0.08);
+  --shadow-lg: 0 8px 24px rgba(23, 43, 42, 0.12);
+  --shadow-border: 0 0 0 1px var(--border-quiet-line);
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-full: 9999px;
+
+  /* Layout dimensions */
+  --header-height: 60px;
+  --stepper-height: 52px;
+}
