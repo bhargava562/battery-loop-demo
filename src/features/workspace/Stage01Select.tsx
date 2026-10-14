@@ -1,5 +1,7 @@
+import React from 'react';
 import type { BatteryCase } from '../assessment/assessment.types';
 import { BatteryScene } from '../battery3d/BatteryScene';
+import { WorkflowInstructionStrip } from '../../components/WorkflowInstructionStrip';
 import { ArrowRight, AlertTriangle } from 'lucide-react';
 
 interface Stage01SelectProps {
@@ -23,246 +25,311 @@ export const Stage01Select: React.FC<Stage01SelectProps> = ({
   onToggleExplode,
   onProceed,
 }) => {
+  // Helper to map single consolidated status and short reason
+  const getCaseSimplifiedStatus = (b: BatteryCase) => {
+    if (b.id === 'BL-003') {
+      return {
+        status: 'Evidence conflict',
+        badgeClass: 'badge-coral',
+        reason: '99% reported SoH contradicted by 180 mV cell imbalance on M03 & missing service log.',
+      };
+    }
+    if (b.criticalSafetyFlag) {
+      return {
+        status: 'Critical risk flag',
+        badgeClass: 'badge-red',
+        reason: 'Physical casing perforation and thermal venting alarm triggered post-collision.',
+      };
+    }
+    if (b.evidenceCompleteness === 'missing') {
+      return {
+        status: 'Evidence incomplete',
+        badgeClass: 'badge-amber',
+        reason: 'Third-party self-reported SoH with missing workshop cycler log and cycle history.',
+      };
+    }
+    if (b.id === 'BL-002') {
+      return {
+        status: 'Complete evidence',
+        badgeClass: 'badge-teal',
+        reason: 'Complete records; localized single module M14 impedance drift repairable.',
+      };
+    }
+    return {
+      status: 'Complete evidence',
+      badgeClass: 'badge-teal',
+      reason: 'Verified cycle telemetry and dealer maintenance logs indicate uniform cell aging.',
+    };
+  };
+
   return (
     <div style={{
-      display: 'grid',
-      gridTemplateColumns: '320px 1fr 340px',
-      gap: '20px',
-      height: '100%',
-      padding: '20px 24px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '14px',
+      padding: '16px 24px',
+      maxWidth: '1440px',
+      margin: '0 auto',
+      width: '100%',
       boxSizing: 'border-box',
     }}>
-      {/* LEFT COLUMN: Seeded Battery Cases List */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div>
-            <h2 style={{ fontSize: '18px', fontWeight: 700 }}>Battery Records</h2>
-            <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-              Select a field pack for triage evaluation
-            </p>
-          </div>
-          <span className="badge badge-neutral">5 Seeded Cases</span>
+      {/* Stage Header */}
+      <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
+          <span className="badge badge-teal">01 · SELECT</span>
+          <span className="text-caption">Intake Triage Queue</span>
         </div>
+        <h1 style={{ marginBottom: '2px' }}>
+          Choose a battery to investigate.
+        </h1>
+        <p className="text-body" style={{ fontSize: '13px', margin: 0 }}>
+          Select a case to understand why it needs assessment and explore its intake profile.
+        </p>
+      </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto' }}>
+      {/* 4-Part Contextual Instruction Strip */}
+      <WorkflowInstructionStrip
+        task="Select an incoming battery case to begin second-life qualification and screening."
+        input="Intake record containing vehicle application, reported SoH, and available telemetry streams."
+        response="Loads the 3D procedural pack geometry and highlights initial evidence status."
+        output="Selected battery dossier ready for physical and sensor inspection in Stage 02."
+      />
+
+      {/* Main 3-Column Workbench */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '340px 1fr 340px',
+        gap: '16px',
+        alignItems: 'stretch',
+        minHeight: '480px',
+      }}>
+        {/* LEFT COLUMN: Simplified Battery Cases List */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          overflowY: 'auto',
+          maxHeight: 'calc(100vh - 280px)',
+          paddingRight: '4px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '2px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+              Intake Candidates
+            </span>
+            <span className="badge badge-neutral">5 Seeded Cases</span>
+          </div>
+
           {allBatteries.map((b) => {
             const isSelected = b.id === battery.id;
-            const hasConflict = b.id === 'BL-003';
-            const hasCritical = b.criticalSafetyFlag;
+            const isBL003 = b.id === 'BL-003';
+            const { status, badgeClass, reason } = getCaseSimplifiedStatus(b);
 
             return (
               <button
                 key={b.id}
                 onClick={() => onSelectBattery(b.id)}
                 style={{
-                  background: isSelected ? 'var(--bg-soft-white)' : '#EBE6DA',
+                  background: isSelected
+                    ? isBL003
+                      ? '#FFFFFF'
+                      : 'var(--bg-surface)'
+                    : 'var(--bg-surface)',
                   border: isSelected
-                    ? '2px solid var(--accent-instrument-teal)'
-                    : '1px solid var(--border-quiet-line)',
+                    ? isBL003
+                      ? '2px solid var(--accent-review-coral)'
+                      : '2px solid var(--accent-primary)'
+                    : '1px solid var(--border-divider)',
                   borderRadius: 'var(--radius-md)',
                   padding: '12px 14px',
                   textAlign: 'left',
                   cursor: 'pointer',
                   position: 'relative',
-                  boxShadow: isSelected ? 'var(--shadow-md)' : 'none',
-                  transition: 'all 0.15s ease',
+                  boxShadow: isSelected ? 'var(--shadow-sm)' : 'none',
+                  transition: 'border-color 0.15s ease, transform 0.1s ease',
+                  transform: isSelected ? 'translateY(-1px)' : 'none',
                 }}
               >
+                {/* Top Row: ID, Vehicle & Highlight Tag */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <span style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontWeight: 700,
-                    fontSize: '14px',
-                    color: isSelected ? 'var(--accent-instrument-teal)' : 'var(--text-forest-graphite)',
-                  }}>
-                    {b.id}
-                  </span>
-                  <span
-                    className={
-                      hasCritical
-                        ? 'badge badge-red'
-                        : hasConflict
-                        ? 'badge badge-coral'
-                        : b.evidenceCompleteness === 'complete'
-                        ? 'badge badge-teal'
-                        : 'badge badge-amber'
-                    }
-                  >
-                    {hasCritical ? 'Safety Flag' : hasConflict ? 'Contradiction' : `${b.reportedSoH}% SoH`}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontWeight: 700,
+                      fontSize: '13px',
+                      color: isSelected ? 'var(--accent-primary)' : 'var(--text-primary)',
+                    }}>
+                      {b.id}
+                    </span>
+                    {isBL003 && (
+                      <span className="badge badge-lime">
+                        Primary Demo
+                      </span>
+                    )}
+                  </div>
+                  <span className={`badge ${badgeClass}`}>
+                    {status}
                   </span>
                 </div>
 
-                <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-forest-graphite)', marginBottom: '4px' }}>
-                  {b.vehicleModel}
+                {/* Second Row: Vehicle Model & SoH */}
+                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                    {b.vehicleModel}
+                  </span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                    {b.reportedSoH}% SoH
+                  </span>
                 </div>
 
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
+                {/* Third Row: Single Plain-English Reason */}
+                <p style={{
                   fontSize: '11px',
-                  fontFamily: 'var(--font-mono)',
-                  color: 'var(--text-muted)',
+                  color: isBL003 ? 'var(--accent-review-coral)' : 'var(--text-secondary)',
+                  margin: 0,
+                  lineHeight: 1.35,
+                  fontWeight: isBL003 ? 600 : 400,
                 }}>
-                  <span>{b.chemistry}</span>
-                  <span>·</span>
-                  <span>{b.nominalCapacityKwh} kWh</span>
-                  <span>·</span>
-                  <span>{b.ageYears} yrs</span>
-                </div>
+                  {reason}
+                </p>
               </button>
             );
           })}
         </div>
-      </div>
 
-      {/* CENTER COLUMN: Real 3D Pack Canvas */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', fontWeight: 600 }}>
-              PACK PREVIEW: {battery.id}
-            </span>
-            <span style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
-              (Rotate · Zoom · Click Modules)
-            </span>
-          </div>
-          <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
-            24 Procedural R3F Meshes
-          </span>
-        </div>
-
-        <div style={{ flex: 1, minHeight: '440px', position: 'relative' }}>
-          <BatteryScene
-            battery={battery}
-            selectedModuleId={selectedModuleId}
-            onSelectModule={onSelectModule}
-            isExploded={explode3DView}
-            onToggleExplode={onToggleExplode}
-          />
-        </div>
-      </div>
-
-      {/* RIGHT COLUMN: Selected Battery Telemetry Dossier */}
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px',
-        background: 'var(--bg-soft-white)',
-        border: '1px solid var(--border-quiet-line)',
-        borderRadius: 'var(--radius-md)',
-        padding: '18px',
-        overflowY: 'auto',
-      }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-            <span className="badge badge-teal">Pack Dossier</span>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-subtle)' }}>
-              {battery.chemistry}
-            </span>
-          </div>
-          <h3 style={{ fontSize: '18px', fontWeight: 700 }}>{battery.name}</h3>
-          <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
-            {battery.summary}
-          </p>
-        </div>
-
-        {/* Highlight Banner for BL-003 */}
-        {battery.id === 'BL-003' && (
-          <div style={{
-            background: 'var(--accent-coral-light)',
-            border: '1px solid rgba(231, 111, 81, 0.4)',
-            borderRadius: 'var(--radius-sm)',
-            padding: '12px',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--accent-oxide-coral)', fontWeight: 700, fontSize: '12px', marginBottom: '4px' }}>
-              <AlertTriangle size={15} />
-              <span>KEY DEMO CASE: TELEMETRY CONFLICT</span>
+        {/* CENTER COLUMN: Real Interactive 3D Pack Centerpiece */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          minHeight: '440px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                3D Pack Geometry · {battery.id}
+              </span>
+              <span className="text-caption">
+                (Drag to rotate · Scroll to zoom)
+              </span>
             </div>
-            <p style={{ fontSize: '12px', color: 'var(--text-forest-graphite)', margin: 0, lineHeight: 1.45 }}>
-              Onboard BMS self-reports <strong>99% SoH</strong>, but bench diagnostics on <strong>Module M03</strong> reveal a <strong>180 mV</strong> voltage deviation with missing service records.
+            <span style={{ fontSize: '11px', fontFamily: 'var(--font-sans)', color: 'var(--text-muted)' }}>
+              24 Addressable Module Meshes
+            </span>
+          </div>
+
+          <div style={{ flex: 1, minHeight: '400px', position: 'relative' }}>
+            <BatteryScene
+              battery={battery}
+              selectedModuleId={selectedModuleId}
+              onSelectModule={onSelectModule}
+              isExploded={explode3DView}
+              onToggleExplode={onToggleExplode}
+            />
+          </div>
+        </div>
+
+        {/* RIGHT COLUMN: Selected Battery Dossier & Next Action */}
+        <div style={{
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border-divider)',
+          borderRadius: 'var(--radius-md)',
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '14px',
+          boxShadow: 'var(--shadow-xs)',
+          overflowY: 'auto',
+          maxHeight: 'calc(100vh - 280px)',
+        }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+              <span className="badge badge-teal">Selected Case Dossier</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-muted)' }}>
+                {battery.chemistry}
+              </span>
+            </div>
+            <h3 style={{ fontSize: '17px', fontWeight: 700, margin: '2px 0 4px 0' }}>
+              {battery.name}
+            </h3>
+            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>
+              {battery.summary}
             </p>
           </div>
-        )}
 
-        {/* Key Metrics Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '10px',
-        }}>
-          <div style={{ background: '#F8F6EF', padding: '10px', borderRadius: '4px', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Reported SoH</div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '20px', fontWeight: 700, color: 'var(--text-forest-graphite)' }}>
-              {battery.reportedSoH}%
-            </div>
-          </div>
-          <div style={{ background: '#F8F6EF', padding: '10px', borderRadius: '4px', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Pack Voltage</div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '20px', fontWeight: 700, color: 'var(--text-forest-graphite)' }}>
-              {battery.nominalVoltageV} V
-            </div>
-          </div>
-          <div style={{ background: '#F8F6EF', padding: '10px', borderRadius: '4px', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Capacity</div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '16px', fontWeight: 600 }}>
-              {battery.nominalCapacityKwh} kWh
-            </div>
-          </div>
-          <div style={{ background: '#F8F6EF', padding: '10px', borderRadius: '4px', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Cycle Count</div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '16px', fontWeight: 600 }}>
-              {battery.cycleCount} cyc
-            </div>
-          </div>
-        </div>
-
-        {/* Evidence Health checklist */}
-        <div style={{ borderTop: '1px solid var(--border-quiet-line)', paddingTop: '12px' }}>
-          <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px' }}>
-            Evidence Records Overview
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '12px' }}>
-            {Object.values(battery.evidence).map((ev) => (
-              <div key={ev.fieldKey} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-forest-graphite)' }}>{ev.label}</span>
-                <span className={
-                  ev.status === 'verified'
-                    ? 'badge badge-teal'
-                    : ev.status === 'partial'
-                    ? 'badge badge-amber'
-                    : 'badge badge-neutral'
-                }>
-                  {ev.status}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Primary Action Button */}
-        <div style={{ marginTop: 'auto', paddingTop: '16px' }}>
-          <button
-            onClick={onProceed}
-            style={{
-              width: '100%',
-              background: 'var(--accent-instrument-teal)',
-              color: '#FFFEFA',
-              padding: '12px 16px',
+          {/* Primary Demo Callout for BL-003 */}
+          {battery.id === 'BL-003' && (
+            <div style={{
+              background: 'var(--accent-review-light)',
+              border: '1px solid rgba(255, 114, 94, 0.35)',
               borderRadius: 'var(--radius-sm)',
-              fontWeight: 600,
-              fontSize: '14px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              cursor: 'pointer',
-              boxShadow: 'var(--shadow-sm)',
-            }}
-          >
-            <span>Inspect Evidence (Stage 02)</span>
-            <ArrowRight size={16} />
-          </button>
+              padding: '10px 12px',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--accent-review-coral)', fontWeight: 700, fontSize: '12px', marginBottom: '3px' }}>
+                <AlertTriangle size={14} />
+                <span>Featured Demo Case · Telemetry Conflict</span>
+              </div>
+              <p style={{ fontSize: '11px', color: 'var(--text-primary)', margin: 0, lineHeight: 1.4 }}>
+                BMS self-reports <strong>99% SoH</strong>, but bench diagnostics on <strong>Module M03</strong> reveal a severe <strong>180 mV</strong> voltage deviation with missing service records.
+              </p>
+            </div>
+          )}
+
+          {/* Core Telemetry Grid */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '8px',
+          }}>
+            <div style={{ background: 'var(--bg-surface-elevated)', padding: '8px 10px', borderRadius: 'var(--radius-xs)', border: '1px solid var(--border-subtle)' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Reported SoH</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                {battery.reportedSoH}%
+              </div>
+            </div>
+            <div style={{ background: 'var(--bg-surface-elevated)', padding: '8px 10px', borderRadius: 'var(--radius-xs)', border: '1px solid var(--border-subtle)' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Pack Voltage</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                {battery.nominalVoltageV} V
+              </div>
+            </div>
+            <div style={{ background: 'var(--bg-surface-elevated)', padding: '8px 10px', borderRadius: 'var(--radius-xs)', border: '1px solid var(--border-subtle)' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Capacity</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '14px', fontWeight: 600 }}>
+                {battery.nominalCapacityKwh} kWh
+              </div>
+            </div>
+            <div style={{ background: 'var(--bg-surface-elevated)', padding: '8px 10px', borderRadius: 'var(--radius-xs)', border: '1px solid var(--border-subtle)' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Cycle Count</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '14px', fontWeight: 600 }}>
+                {battery.cycleCount} cyc
+              </div>
+            </div>
+          </div>
+
+          {/* Simulated Data Transparency Notice */}
+          <div style={{
+            background: 'var(--bg-surface-muted)',
+            border: '1px solid var(--border-divider)',
+            borderRadius: 'var(--radius-xs)',
+            padding: '8px 10px',
+            fontSize: '11px',
+            color: 'var(--text-secondary)',
+            lineHeight: 1.35,
+          }}>
+            <strong>Simulated Data Notice:</strong> All battery cases and measurements in this workspace are illustrative simulated engineering records.
+          </div>
+
+          {/* Primary Action Button */}
+          <div style={{ marginTop: 'auto', paddingTop: '8px' }}>
+            <button
+              onClick={onProceed}
+              className="btn-primary"
+              style={{ width: '100%' }}
+            >
+              <span>Inspect Selected Battery</span>
+              <ArrowRight size={15} />
+            </button>
+          </div>
         </div>
       </div>
     </div>

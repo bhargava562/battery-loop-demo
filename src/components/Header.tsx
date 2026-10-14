@@ -1,3 +1,4 @@
+import React from 'react';
 import { RotateCcw, Download, Cpu } from 'lucide-react';
 import type { BatteryCase } from '../features/assessment/assessment.types';
 
@@ -22,175 +23,183 @@ export const Header: React.FC<HeaderProps> = ({
     <header
       style={{
         height: 'var(--header-height)',
-        backgroundColor: 'var(--bg-dark-petrol)',
+        backgroundColor: 'var(--bg-deep-workspace)',
         color: 'var(--text-inverse)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '0 24px',
         borderBottom: '1px solid var(--border-dark)',
+        zIndex: 50,
       }}
     >
       {/* Brand & Identity */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div
             style={{
-              width: '32px',
-              height: '32px',
+              width: '30px',
+              height: '30px',
               borderRadius: '6px',
-              background: 'var(--accent-instrument-teal)',
+              background: 'var(--accent-primary)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 2px 8px rgba(17, 124, 114, 0.4)',
             }}
           >
-            <Cpu size={18} color="#FFFEFA" />
+            <Cpu size={17} color="#FFFFFF" />
           </div>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: '18px',
-                  fontWeight: 700,
-                  letterSpacing: '-0.02em',
-                }}
-              >
-                BatteryLoop
-              </span>
-              <span
-                style={{
-                  fontSize: '11px',
-                  fontFamily: 'var(--font-mono)',
-                  background: 'rgba(213, 221, 214, 0.15)',
-                  padding: '2px 6px',
-                  borderRadius: '3px',
-                  color: '#A9C4C0',
-                  letterSpacing: '0.04em',
-                }}
-              >
-                DECISION THEATRE
-              </span>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+            <span
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '17px',
+                fontWeight: 700,
+                letterSpacing: '-0.02em',
+                color: '#FFFFFF',
+              }}
+            >
+              BatteryLoop
+            </span>
+            <span
+              style={{
+                fontSize: '11px',
+                fontFamily: 'var(--font-sans)',
+                fontWeight: 600,
+                color: '#8CAAA4',
+                letterSpacing: '0.02em',
+              }}
+            >
+              Decision Theatre
+            </span>
           </div>
         </div>
 
-        {/* Demo Mode Notice */}
+        {/* Clear Notice: SIMULATED DEMO DATA */}
         <div
           style={{
-            display: 'flex',
+            display: 'inline-flex',
             alignItems: 'center',
             gap: '6px',
             fontSize: '11px',
-            fontFamily: 'var(--font-mono)',
-            color: '#89A8A4',
-            borderLeft: '1px solid rgba(213, 221, 214, 0.2)',
-            paddingLeft: '16px',
+            fontFamily: 'var(--font-sans)',
+            fontWeight: 600,
+            color: '#B6D2CD',
+            background: 'rgba(255, 255, 255, 0.08)',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            padding: '3px 8px',
+            borderRadius: 'var(--radius-xs)',
           }}
         >
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#D9A441' }}></span>
-          <span>DEMO WORKSPACE · SIMULATED DATA</span>
+          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--signal-amber)' }} />
+          <span>SIMULATED DEMO DATA · SCREENING PROTOTYPE</span>
         </div>
       </div>
 
-      {/* Center: Quick Battery Selector */}
+      {/* Center: Case Quick Selector */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <span style={{ fontSize: '12px', color: '#97B3AF', fontFamily: 'var(--font-mono)' }}>
+        <span style={{ fontSize: '12px', color: '#8CAAA4', fontFamily: 'var(--font-sans)', fontWeight: 500 }}>
           Active Case:
         </span>
         <select
           value={battery.id}
           onChange={(e) => onSelectBattery(e.target.value)}
-          aria-label="Select Battery Case"
+          aria-label="Active Battery Case"
           style={{
-            background: '#0F2B28',
-            color: '#F4F1E8',
-            border: '1px solid #285550',
-            borderRadius: '4px',
-            padding: '5px 12px',
+            background: '#133935',
+            color: '#FFFFFF',
+            border: '1px solid #23524C',
+            borderRadius: 'var(--radius-xs)',
+            padding: '5px 10px',
             fontSize: '13px',
-            fontFamily: 'var(--font-mono)',
+            fontFamily: 'var(--font-sans)',
             fontWeight: 600,
             cursor: 'pointer',
           }}
         >
           {allBatteries.map((b) => (
             <option key={b.id} value={b.id}>
-              {b.id} — {b.vehicleModel} (SoH {b.reportedSoH}%)
+              {b.id} · {b.vehicleModel} (SoH {b.reportedSoH}%)
             </option>
           ))}
         </select>
 
         <span
           className={
-            battery.evidenceCompleteness === 'complete'
+            battery.id === 'BL-003'
+              ? 'badge badge-coral'
+              : battery.criticalSafetyFlag
+              ? 'badge badge-red'
+              : battery.evidenceCompleteness === 'complete'
               ? 'badge badge-teal'
-              : battery.evidenceCompleteness === 'partial'
-              ? 'badge badge-amber'
-              : 'badge badge-coral'
+              : 'badge badge-amber'
           }
         >
-          {battery.evidenceCompleteness} evidence
+          {battery.id === 'BL-003'
+            ? 'Evidence Conflict'
+            : battery.criticalSafetyFlag
+            ? 'Critical Flag'
+            : battery.evidenceCompleteness === 'complete'
+            ? 'Complete Data'
+            : 'Partial Data'}
         </span>
       </div>
 
-      {/* Right Actions */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      {/* Right Action Tools */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <button
           onClick={onExportAudit}
           style={{
-            background: '#1D4540',
-            color: '#F4F1E8',
-            border: '1px solid #2A5D57',
-            borderRadius: '4px',
-            padding: '6px 12px',
+            background: 'rgba(255, 255, 255, 0.08)',
+            color: '#FFFFFF',
+            border: '1px solid rgba(255, 255, 255, 0.15)',
+            borderRadius: 'var(--radius-xs)',
+            padding: '5px 10px',
             fontSize: '12px',
-            fontFamily: 'var(--font-sans)',
+            fontWeight: 500,
             display: 'flex',
             alignItems: 'center',
-            gap: '6px',
+            gap: '5px',
             cursor: 'pointer',
           }}
           title="Export JSON audit trail and decision dossier"
         >
-          <Download size={14} />
-          Export Dossier
+          <Download size={13} />
+          <span>Export Dossier</span>
         </button>
 
         <button
           onClick={onResetCase}
           style={{
             background: 'transparent',
-            color: '#A9C4C0',
-            border: '1px solid #285550',
-            borderRadius: '4px',
-            padding: '6px 10px',
+            color: '#A2BEB9',
+            border: '1px solid #23524C',
+            borderRadius: 'var(--radius-xs)',
+            padding: '5px 10px',
             fontSize: '12px',
             display: 'flex',
             alignItems: 'center',
             gap: '5px',
             cursor: 'pointer',
           }}
-          title="Restore current case to seeded telemetry"
+          title="Restore current case to initial seeded values"
         >
-          <RotateCcw size={13} />
-          Reset Case
+          <RotateCcw size={12} />
+          <span>Reset Case</span>
         </button>
 
         <button
           onClick={onResetEntireDemo}
           style={{
             background: 'transparent',
-            color: '#738C89',
+            color: '#71928C',
             fontSize: '11px',
-            fontFamily: 'var(--font-mono)',
+            fontFamily: 'var(--font-sans)',
             padding: '4px 6px',
             cursor: 'pointer',
             textDecoration: 'underline',
           }}
-          title="Clear all local storage corrections and start clean"
+          title="Clear all stored corrections"
         >
           Reset All
         </button>

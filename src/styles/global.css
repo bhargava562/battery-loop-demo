@@ -10,8 +10,8 @@ html, body {
   height: 100%;
   width: 100%;
   overflow-x: hidden;
-  background-color: var(--bg-warm-paper);
-  color: var(--text-forest-graphite);
+  background-color: var(--bg-app);
+  color: var(--text-primary);
   font-family: var(--font-sans);
   font-size: 14px;
   line-height: 1.5;
@@ -25,21 +25,60 @@ html, body {
   flex-direction: column;
 }
 
-/* Typography Helpers */
+/* Typography Classes */
 .font-display { font-family: var(--font-display); }
 .font-sans { font-family: var(--font-sans); }
 .font-mono { font-family: var(--font-mono); }
 
-h1, h2, h3, h4, h5, h6 {
+h1, .heading-1 {
   font-family: var(--font-display);
-  font-weight: 600;
-  color: var(--text-forest-graphite);
+  font-size: clamp(26px, 2.2vw, 32px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+h2, .heading-2 {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 1.8vw, 24px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
   line-height: 1.25;
 }
 
-/* Button & interactive components */
+h3, .heading-3 {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+}
+
+p, .text-body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.text-caption {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.text-mono {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: -0.01em;
+}
+
+/* Interactive Elements */
 button, input, select, textarea {
-  font-family: inherit;
+  font-family: var(--font-sans);
   font-size: inherit;
   color: inherit;
 }
@@ -49,31 +88,60 @@ button {
   border: none;
   background: none;
   outline: none;
-  transition: all 0.15s ease-in-out;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
-  outline: 2px solid var(--accent-instrument-teal);
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--accent-primary);
   outline-offset: 2px;
 }
 
-/* Scrollbars */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--border-quiet-line);
-  border-radius: var(--radius-full);
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-subtle);
+/* Primary Button Styling */
+.btn-primary {
+  background: var(--accent-primary);
+  color: #FFFFFF;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
+  transition: background-color 0.15s ease, transform 0.1s ease;
 }
 
-/* Reusable Utility Badges */
+.btn-primary:hover {
+  background: var(--accent-primary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-divider);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-secondary:hover {
+  background: var(--bg-surface-muted);
+  border-color: var(--text-muted);
+}
+
+/* Status Badges */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -81,52 +149,75 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   padding: 3px 8px;
   font-size: 11px;
   font-weight: 600;
-  font-family: var(--font-mono);
-  border-radius: var(--radius-sm);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  border-radius: var(--radius-xs);
+  letter-spacing: 0.02em;
+  font-family: var(--font-sans);
 }
 
 .badge-teal {
-  background: var(--accent-teal-light);
-  color: var(--accent-instrument-teal);
-  border: 1px solid rgba(17, 124, 114, 0.25);
+  background: var(--accent-primary-light);
+  color: var(--accent-primary);
+}
+
+.badge-lime {
+  background: var(--accent-highlight);
+  color: var(--accent-highlight-text);
+  font-weight: 700;
 }
 
 .badge-coral {
-  background: var(--accent-coral-light);
-  color: var(--accent-oxide-coral);
-  border: 1px solid rgba(231, 111, 81, 0.3);
+  background: var(--accent-review-light);
+  color: var(--accent-review-coral);
 }
 
 .badge-amber {
   background: var(--signal-amber-light);
-  color: #9E7019;
-  border: 1px solid rgba(217, 164, 65, 0.35);
+  color: #8C6114;
 }
 
 .badge-red {
   background: var(--risk-red-light);
   color: var(--risk-red);
-  border: 1px solid rgba(190, 61, 61, 0.3);
 }
 
 .badge-neutral {
-  background: #E8ECE9;
-  color: var(--text-muted);
-  border: 1px solid var(--border-quiet-line);
+  background: var(--bg-surface-muted);
+  color: var(--text-secondary);
 }
 
-/* Card surfaces */
+/* Card Surfaces */
 .surface-card {
-  background: var(--bg-soft-white);
-  border: 1px solid var(--border-quiet-line);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-divider);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xs);
+}
+
+.surface-elevated {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-divider);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
 }
 
 .surface-dark {
-  background: var(--bg-dark-petrol);
+  background: var(--bg-deep-workspace);
   color: var(--text-inverse);
   border: 1px solid var(--border-dark);
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-divider);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }

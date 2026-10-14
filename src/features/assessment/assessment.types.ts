@@ -112,7 +112,9 @@ export interface AuditEvent {
     | 'REASONING_FLAGGED'
     | 'SIMULATION_APPLIED'
     | 'DECISION_RECORDED'
-    | 'CASE_RESET';
+    | 'CASE_RESET'
+    | 'CASE_REGISTERED'
+    | 'EVIDENCE_IMPORTED';
   summary: string;
   details?: Record<string, any>;
   author: string;

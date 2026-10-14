@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { X, ChevronUp, ChevronDown, Sparkles } from 'lucide-react';
+import { X, ChevronDown, Sparkles } from 'lucide-react';
 import type { Assessment } from '../features/assessment/assessment.types';
+import type { AppRoute } from '../app/routes';
 
 interface LoopGuideProps {
+  currentRoute?: AppRoute;
   currentStage: number;
   assessment: Assessment;
   selectedModuleId: string | null;
@@ -14,6 +16,7 @@ interface LoopGuideProps {
 }
 
 export const LoopGuide: React.FC<LoopGuideProps> = ({
+  currentRoute,
   currentStage,
   assessment,
   selectedModuleId,
@@ -23,90 +26,84 @@ export const LoopGuide: React.FC<LoopGuideProps> = ({
   onDismiss,
   onRestore,
 }) => {
-  const [minimized, setMinimized] = useState(false);
+  // Start compact/collapsed by default so it never blocks UI elements!
+  const [isOpen, setIsOpen] = useState(false);
 
   if (isDismissed) {
     return (
       <div style={{
         position: 'fixed',
         bottom: '16px',
-        right: '16px',
-        zIndex: 100,
+        right: '18px',
+        zIndex: 90,
       }}>
         <button
           onClick={onRestore}
           aria-label="Re-open Loop Guide"
           style={{
-            background: 'var(--bg-dark-petrol)',
-            color: 'var(--text-inverse)',
-            border: '1px solid var(--accent-instrument-teal)',
+            background: 'var(--bg-deep-workspace)',
+            color: '#FFFFFF',
+            border: '1px solid var(--accent-primary)',
             borderRadius: 'var(--radius-full)',
-            padding: '6px 12px',
-            fontSize: '12px',
+            padding: '5px 10px',
+            fontSize: '11px',
             fontFamily: 'var(--font-sans)',
             display: 'flex',
             alignItems: 'center',
-            gap: '6px',
-            boxShadow: 'var(--shadow-md)',
+            gap: '5px',
+            boxShadow: 'var(--shadow-sm)',
             cursor: 'pointer',
           }}
         >
-          <Sparkles size={14} color="var(--accent-instrument-teal)" />
-          <span>Ask Loop</span>
+          <Sparkles size={12} color="var(--accent-highlight)" />
+          <span>Loop Guide</span>
         </button>
       </div>
     );
   }
 
-  // Determine Loop mood state
+  // Determine state mood
   const isWarningState =
     assessment.pathway === 'further-controlled-testing' ||
     assessment.deploymentBlocked ||
     hasReasoningFlag ||
-    (selectedModuleId === 'M03' && currentStage === 2);
+    (selectedModuleId === 'M03' && (currentStage === 2 || (currentRoute?.type === 'battery-case' && currentRoute.tab === 'inspect')));
 
-  // Scripted dialogue based on current context
+  // Scripted dialogue: exactly <= 2 short plain English sentences (Section 15)
   let dialogueText = '';
-  switch (currentStage) {
-    case 1:
-      dialogueText =
-        'Choose a battery case to examine. Notice BL-003: reported SoH shows 99%, but telemetry indicates unresolved risks.';
-      break;
-    case 2:
-      if (selectedModuleId === 'M03') {
-        dialogueText =
-          'Look at Module M03! A 180 mV voltage deviation contradicts the pristine 99% pack rating. Check where the diagnostic source originated.';
-      } else {
-        dialogueText =
-          'Click individual modules to inspect telemetry origin, timestamp, and verification pedigree.';
-      }
-      break;
-    case 3:
-      dialogueText =
-        'I found conflicting evidence across telemetry streams. My screening suggestion is decision-support, not a safety clearance.';
-      break;
-    case 4:
-      if (hasOverrides) {
-        dialogueText =
-          'You recorded a human correction. Notice how the evaluated rule explanation immediately adjusted to reflect your change.';
-      } else if (hasReasoningFlag) {
-        dialogueText =
-          'You recorded a concern about system reasoning. The objection is logged without silently claiming it was resolved.';
-      } else {
-        dialogueText =
-          'Something inaccurate or missing? Overwrite telemetry values or flag reasoning concerns to challenge the automated rule.';
-      }
-      break;
-    case 5:
-      dialogueText =
-        'Adjust the simulation sliders to test hypothesis boundaries. See which exact rule fires when cell deviation drops below 50 mV.';
-      break;
-    case 6:
-      dialogueText =
-        'You decide the final recorded action. Remember that mandatory physical validation remains required before any redeployment.';
-      break;
-    default:
-      dialogueText = 'Welcome to BatteryLoop Decision Theatre.';
+
+  if (currentRoute?.type === 'workspace') {
+    dialogueText = 'Welcome to the battery assessment queue. Review incoming cases and resume the BL-003 conflict inspection.';
+  } else if (currentRoute?.type === 'batteries') {
+    dialogueText = 'Filter and search through facility inventory. Case BL-003 is the primary demonstration case.';
+  } else if (currentRoute?.type === 'battery-new') {
+    dialogueText = 'Register the incoming pack identity and target application before importing cycler test files.';
+  } else if (currentRoute?.type === 'battery-case' && currentRoute.tab === 'import') {
+    dialogueText = 'This file has fields that need unit mapping. Verify column mappings before saving to case.';
+  } else if (currentRoute?.type === 'battery-case' && currentRoute.tab === 'inspect') {
+    if (selectedModuleId === 'M03') {
+      dialogueText = 'Module M03 exhibits a 180 mV cell voltage gap. Check the data source to see where this measurement came from.';
+    } else {
+      dialogueText = 'Click any module to inspect its readings and timestamps. Unfamiliar terms have inline explanations below.';
+    }
+  } else if (currentRoute?.type === 'battery-case' && currentRoute.tab === 'assessment') {
+    dialogueText = 'The recommendation is triggered by conflicting evidence. See rule RULE-CONF-02.';
+  } else if (currentRoute?.type === 'battery-case' && currentRoute.tab === 'review') {
+    dialogueText = hasOverrides
+      ? 'Your correction is saved separately from the original reading. The rule engine recalculated in real time.'
+      : 'Your correction will be stored separately from the original reading. The rule engine recalculates in real time.';
+  } else if (currentRoute?.type === 'battery-case' && currentRoute.tab === 'simulate') {
+    dialogueText = 'This is a hypothetical value and will not change saved evidence. Use it to explore rule behavior.';
+  } else if (currentRoute?.type === 'battery-case' && currentRoute.tab === 'decision') {
+    dialogueText = 'This action will be recorded in the audit trail. Qualified diagnostic validation remains outstanding.';
+  } else if (currentRoute?.type === 'dossiers') {
+    dialogueText = 'Export formal JSON dossiers and verify remaining qualification gates for downstream repurposing.';
+  } else if (currentRoute?.type === 'history') {
+    dialogueText = 'Immutable audit history of technician overrides, reasoning flags, and signed-off decisions.';
+  } else if (currentRoute?.type === 'settings') {
+    dialogueText = 'Download sample cycler CSV templates or inspect transparent screening thresholds.';
+  } else {
+    dialogueText = `BatteryLoop Decision Theatre — Guided second-life battery triage (Stage 0${currentStage}).`;
   }
 
   return (
@@ -117,28 +114,26 @@ export const LoopGuide: React.FC<LoopGuideProps> = ({
         position: 'fixed',
         bottom: '16px',
         right: '18px',
-        zIndex: 100,
-        maxWidth: '360px',
+        zIndex: 90,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-end',
         gap: '6px',
-        filter: 'drop-shadow(0 8px 24px rgba(23, 43, 42, 0.16))',
+        pointerEvents: 'none',
       }}
     >
-      {/* Speech Balloon */}
-      {!minimized && (
+      {/* Speech Balloon - Compact, docked, and non-obstructive */}
+      {isOpen && (
         <div
           style={{
-            background: 'var(--bg-soft-white)',
-            border: `2px solid ${isWarningState ? 'var(--accent-oxide-coral)' : 'var(--accent-instrument-teal)'}`,
-            borderRadius: '12px 12px 2px 12px',
-            padding: '12px 14px',
-            position: 'relative',
-            fontSize: '13px',
-            color: 'var(--text-forest-graphite)',
-            lineHeight: 1.45,
+            pointerEvents: 'auto',
+            background: 'var(--bg-surface)',
+            border: `1.5px solid ${isWarningState ? 'var(--accent-review-coral)' : 'var(--accent-primary)'}`,
+            borderRadius: '10px 10px 2px 10px',
+            padding: '10px 12px',
+            maxWidth: '300px',
             width: '100%',
+            boxShadow: 'var(--shadow-md)',
             boxSizing: 'border-box',
           }}
         >
@@ -146,120 +141,117 @@ export const LoopGuide: React.FC<LoopGuideProps> = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            marginBottom: '6px',
+            marginBottom: '4px',
             borderBottom: '1px solid var(--border-subtle)',
-            paddingBottom: '4px',
+            paddingBottom: '3px',
           }}>
-            <span style={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 700,
-              fontSize: '12px',
+            <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-              color: isWarningState ? 'var(--accent-oxide-coral)' : 'var(--accent-instrument-teal)',
+              gap: '5px',
+              fontFamily: 'var(--font-display)',
+              fontWeight: 700,
+              fontSize: '11px',
+              color: isWarningState ? 'var(--accent-review-coral)' : 'var(--accent-primary)',
             }}>
               <span>LOOP</span>
-              <span style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: '10px',
-                fontWeight: 500,
-                color: 'var(--text-muted)',
-              }}>
-                · Field Guide
+              <span style={{ fontSize: '10px', fontWeight: 500, color: 'var(--text-muted)' }}>
+                · Contextual Guide
               </span>
-            </span>
+            </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
               <button
-                onClick={() => setMinimized(true)}
+                onClick={() => setIsOpen(false)}
                 aria-label="Minimize Loop Guide"
-                style={{ color: 'var(--text-subtle)', padding: '2px', cursor: 'pointer' }}
+                style={{ color: 'var(--text-muted)', padding: '2px', cursor: 'pointer' }}
               >
-                <ChevronDown size={14} />
+                <ChevronDown size={13} />
               </button>
               <button
                 onClick={onDismiss}
                 aria-label="Dismiss Loop Guide"
-                style={{ color: 'var(--text-subtle)', padding: '2px', cursor: 'pointer' }}
+                style={{ color: 'var(--text-muted)', padding: '2px', cursor: 'pointer' }}
               >
-                <X size={14} />
+                <X size={13} />
               </button>
             </div>
           </div>
 
-          <p style={{ margin: 0, fontWeight: 500 }}>
+          <p style={{
+            margin: 0,
+            fontSize: '12px',
+            color: 'var(--text-primary)',
+            lineHeight: 1.4,
+            fontWeight: 500,
+          }}>
             {dialogueText}
           </p>
         </div>
       )}
 
-      {/* Loop Mascot Avatar Button */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        {minimized && (
-          <button
-            onClick={() => setMinimized(false)}
-            aria-label="Expand Loop dialogue"
-            style={{
-              background: 'var(--bg-soft-white)',
-              border: '1px solid var(--border-quiet-line)',
-              borderRadius: 'var(--radius-full)',
-              padding: '4px 8px',
-              fontSize: '11px',
-              color: 'var(--text-muted)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-            }}
-          >
-            <ChevronUp size={12} />
-            Read Tip
-          </button>
-        )}
-
-        {/* Custom SVG Avatar */}
+      {/* Compact Docked Launcher Pill with Polished SVG Character */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        title="Open Loop Contextual Guide"
+        style={{
+          pointerEvents: 'auto',
+          background: 'var(--bg-deep-workspace)',
+          color: '#FFFFFF',
+          border: `1.5px solid ${isWarningState ? 'var(--accent-review-coral)' : 'var(--border-dark)'}`,
+          borderRadius: 'var(--radius-full)',
+          padding: '4px 10px 4px 6px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '7px',
+          boxShadow: 'var(--shadow-sm)',
+          cursor: 'pointer',
+          transition: 'transform 0.1s ease',
+        }}
+      >
+        {/* Polished SVG Character Avatar */}
         <div
-          onClick={() => setMinimized(!minimized)}
-          title="Loop — Contextual Review Guide"
           style={{
-            width: '46px',
-            height: '46px',
+            width: '26px',
+            height: '26px',
             borderRadius: '50%',
-            background: isWarningState
-              ? 'linear-gradient(135deg, #163C38 0%, #7A2C1D 100%)'
-              : 'linear-gradient(135deg, #163C38 0%, #117C72 100%)',
-            border: `2px solid ${isWarningState ? 'var(--accent-oxide-coral)' : 'var(--accent-instrument-teal)'}`,
+            background: isWarningState ? '#541A12' : '#0B3A34',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            cursor: 'pointer',
-            transition: 'transform 0.15s ease',
-            boxShadow: 'var(--shadow-md)',
           }}
         >
-          <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+          <svg width="20" height="20" viewBox="0 0 32 32" fill="none">
             {/* Robot/meter chassis */}
-            <rect x="5" y="8" width="22" height="18" rx="6" fill="#FFFEFA" stroke="#172B2A" strokeWidth="1.5" />
-            {/* Antenna with status node */}
-            <path d="M16 8V3" stroke="#172B2A" strokeWidth="1.5" strokeLinecap="round" />
-            <circle cx="16" cy="3" r="2.5" fill={isWarningState ? '#E76F51' : '#117C72'} />
-
-            {/* Dial eyes */}
-            <circle cx="11.5" cy="15.5" r="2.2" fill={isWarningState ? '#E76F51' : '#163C38'} />
-            <circle cx="20.5" cy="15.5" r="2.2" fill={isWarningState ? '#E76F51' : '#163C38'} />
-
-            {/* Expression mouth */}
+            <rect x="5" y="8" width="22" height="18" rx="6" fill="#FFFFFF" stroke="#0D2926" strokeWidth="1.5" />
+            {/* Antenna */}
+            <path d="M16 8V3" stroke="#0D2926" strokeWidth="1.5" strokeLinecap="round" />
+            <circle cx="16" cy="3" r="2.5" fill={isWarningState ? '#FF725E' : '#D8F36A'} />
+            {/* Eyes */}
+            <circle cx="11.5" cy="15.5" r="2" fill="#0D2926" />
+            <circle cx="20.5" cy="15.5" r="2" fill="#0D2926" />
+            {/* Expression */}
             {isWarningState ? (
-              // Alert wavy mouth
-              <path d="M12 21.5C13.5 20.5 15 22.5 16 21.5C17.5 20.5 19 22.5 20 21.5" stroke="#E76F51" strokeWidth="1.5" strokeLinecap="round" />
+              <path d="M12 21C14 20 18 20 20 21" stroke="#FF725E" strokeWidth="1.5" strokeLinecap="round" />
             ) : (
-              // Confident friendly smile
-              <path d="M12 21C13.5 22.5 18.5 22.5 20 21" stroke="#117C72" strokeWidth="1.5" strokeLinecap="round" />
+              <path d="M12 20.5C14 22 18 22 20 20.5" stroke="#007F73" strokeWidth="1.5" strokeLinecap="round" />
             )}
           </svg>
         </div>
-      </div>
+
+        <span style={{ fontSize: '11px', fontWeight: 600, fontFamily: 'var(--font-sans)' }}>
+          {isOpen ? 'Close Guide' : 'Loop Guide'}
+        </span>
+
+        {isWarningState && !isOpen && (
+          <span style={{
+            width: '6px',
+            height: '6px',
+            borderRadius: '50%',
+            background: 'var(--accent-review-coral)',
+          }} />
+        )}
+      </button>
     </div>
   );
 };

@@ -74,25 +74,25 @@ export const BatteryModule: React.FC<BatteryModuleProps> = ({
   let emissiveIntensity = 0.0;
 
   if (isSelected) {
-    baseColor = '#117C72'; // Instrument teal
-    emissiveColor = '#117C72';
-    emissiveIntensity = 0.45;
+    baseColor = '#007F73'; // Teal with lime highlight
+    emissiveColor = '#D8F36A'; // Accent lime glow
+    emissiveIntensity = 0.6;
   } else if (module.hasConflict || (module.status === 'flagged' && module.voltageDeviationMv >= 120)) {
-    baseColor = '#E76F51'; // Oxide coral
-    emissiveColor = '#E76F51';
-    emissiveIntensity = hovered ? 0.6 : 0.35;
+    baseColor = '#FF725E'; // Review coral
+    emissiveColor = '#FF725E';
+    emissiveIntensity = hovered ? 0.65 : 0.4;
   } else if (module.status === 'critical') {
-    baseColor = '#BE3D3D'; // Risk red
-    emissiveColor = '#BE3D3D';
-    emissiveIntensity = 0.5;
+    baseColor = '#C63F46'; // Risk red
+    emissiveColor = '#C63F46';
+    emissiveIntensity = 0.55;
   } else if (module.status === 'flagged') {
-    baseColor = '#D9A441'; // Signal amber
-    emissiveColor = '#D9A441';
-    emissiveIntensity = 0.25;
+    baseColor = '#E4AD46'; // Signal amber
+    emissiveColor = '#E4AD46';
+    emissiveIntensity = 0.3;
   } else if (hovered) {
     baseColor = '#8A9F9D';
-    emissiveColor = '#117C72';
-    emissiveIntensity = 0.2;
+    emissiveColor = '#007F73';
+    emissiveIntensity = 0.25;
   }
 
   return (

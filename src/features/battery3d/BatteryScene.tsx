@@ -307,16 +307,16 @@ export const BatteryScene: React.FC<BatterySceneProps> = ({
           color: '#A8BCBA',
         }}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-instrument-teal)' }}></span>
-            Selected
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-highlight)' }}></span>
+            Selected Module
           </span>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-oxide-coral)' }}></span>
-            Conflict / Anomaly
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-review-coral)' }}></span>
+            Evidence Conflict
           </span>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#6A7D7B' }}></span>
-            Nominal
+            Nominal Module
           </span>
         </div>
 

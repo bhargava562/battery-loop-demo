@@ -9,12 +9,12 @@ interface StageStepperProps {
 }
 
 const STAGES = [
-  { num: 1, id: 'select', label: '01 · Select', sub: 'Choose pack record' },
-  { num: 2, id: 'inspect', label: '02 · Inspect', sub: '3D geometry & telemetry' },
-  { num: 3, id: 'assess', label: '03 · Assess', sub: 'Rule suggestion output' },
-  { num: 4, id: 'review', label: '04 · Review', sub: 'Human correction' },
-  { num: 5, id: 'simulate', label: '05 · Simulate', sub: 'Live what-if sandbox' },
-  { num: 6, id: 'decide', label: '06 · Decide', sub: 'Action & audit record' },
+  { num: 1, id: 'select', label: 'Select Case', code: '01 · Select', sub: 'Choose pack intake' },
+  { num: 2, id: 'inspect', label: 'Inspect Pack', code: '02 · Inspect', sub: '3D array & sensor provenance' },
+  { num: 3, id: 'assess', label: 'Assess Suggestion', code: '03 · Assess', sub: 'Automated screening logic' },
+  { num: 4, id: 'review', label: 'Review Evidence', code: '04 · Review', sub: 'Human challenge layer' },
+  { num: 5, id: 'simulate', label: 'Simulate Scenarios', code: '05 · Simulate', sub: 'Live what-if testing' },
+  { num: 6, id: 'decide', label: 'Record Decision', code: '06 · Decide', sub: 'Action & audit seal' },
 ];
 
 export const StageStepper: React.FC<StageStepperProps> = ({
@@ -28,26 +28,43 @@ export const StageStepper: React.FC<StageStepperProps> = ({
       aria-label="Workflow Stages"
       style={{
         height: 'var(--stepper-height)',
-        backgroundColor: 'var(--bg-soft-white)',
-        borderBottom: '1px solid var(--border-quiet-line)',
+        backgroundColor: 'var(--bg-surface)',
+        borderBottom: '1px solid var(--border-divider)',
         display: 'flex',
         alignItems: 'center',
         padding: '0 24px',
         overflowX: 'auto',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        width: '100%',
+        maxWidth: '1360px',
+        margin: '0 auto',
+        gap: '4px',
+      }}>
         {STAGES.map((s, index) => {
           const isActive = s.num === currentStage;
-          const isPassed = s.num < currentStage;
+          const isCompleted = s.num < currentStage;
 
-          let badgeIcon = null;
+          let statusIcon = null;
           if (s.num === 4 && hasCorrections) {
-            badgeIcon = <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent-oxide-coral)' }} />;
+            statusIcon = (
+              <span
+                style={{
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  background: 'var(--accent-review-coral)',
+                }}
+                title="Reviewer overrides recorded"
+              />
+            );
           } else if (s.num === 6 && hasDecision) {
-            badgeIcon = <Check size={12} color="var(--accent-instrument-teal)" />;
-          } else if (isPassed) {
-            badgeIcon = <Check size={12} color="var(--text-subtle)" />;
+            statusIcon = <Check size={12} color="var(--accent-primary)" strokeWidth={2.5} />;
+          } else if (isCompleted) {
+            statusIcon = <Check size={12} color="var(--accent-primary)" strokeWidth={2.5} />;
           }
 
           return (
@@ -59,48 +76,87 @@ export const StageStepper: React.FC<StageStepperProps> = ({
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
-                  padding: '8px 14px',
+                  padding: '7px 12px',
                   borderRadius: 'var(--radius-sm)',
-                  backgroundColor: isActive ? 'var(--accent-teal-light)' : 'transparent',
-                  border: isActive ? '1px solid rgba(17, 124, 114, 0.3)' : '1px solid transparent',
+                  backgroundColor: isActive
+                    ? 'var(--accent-primary-light)'
+                    : isCompleted
+                    ? 'transparent'
+                    : 'transparent',
+                  border: isActive
+                    ? '1px solid rgba(0, 127, 115, 0.3)'
+                    : '1px solid transparent',
                   cursor: 'pointer',
                   textAlign: 'left',
-                  transition: 'background-color 0.15s, border-color 0.15s',
-                  position: 'relative',
                   flexShrink: 0,
+                  transition: 'background-color 0.15s ease',
                 }}
               >
-                {/* Stage Number & Title */}
-                <div>
-                  <div style={{
+                {/* Step Number Circle */}
+                <div
+                  style={{
+                    width: '22px',
+                    height: '22px',
+                    borderRadius: '50%',
+                    background: isActive
+                      ? 'var(--accent-primary)'
+                      : isCompleted
+                      ? '#E2EDE8'
+                      : 'var(--bg-surface-muted)',
+                    color: isActive
+                      ? '#FFFFFF'
+                      : isCompleted
+                      ? 'var(--accent-primary)'
+                      : 'var(--text-muted)',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px',
-                    fontFamily: 'var(--font-display)',
-                    fontSize: '13px',
-                    fontWeight: isActive ? 700 : 500,
-                    color: isActive
-                      ? 'var(--accent-instrument-teal)'
-                      : isPassed
-                      ? 'var(--text-forest-graphite)'
-                      : 'var(--text-muted)',
-                  }}>
-                    <span>{s.label}</span>
-                    {badgeIcon}
-                  </div>
-                  <div style={{
+                    justifyContent: 'center',
                     fontSize: '11px',
-                    color: isActive ? 'var(--accent-instrument-teal)' : 'var(--text-subtle)',
+                    fontWeight: 700,
                     fontFamily: 'var(--font-sans)',
-                  }}>
+                  }}
+                >
+                  {isCompleted ? <Check size={12} strokeWidth={2.5} /> : `0${s.num}`}
+                </div>
+
+                {/* Step Labels */}
+                <div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      fontFamily: 'var(--font-display)',
+                      fontSize: '13px',
+                      fontWeight: isActive ? 700 : isCompleted ? 600 : 500,
+                      color: isActive
+                        ? 'var(--accent-primary)'
+                        : isCompleted
+                        ? 'var(--text-primary)'
+                        : 'var(--text-secondary)',
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    <span>{s.label}</span>
+                    {statusIcon}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: '11px',
+                      fontFamily: 'var(--font-sans)',
+                      color: isActive ? 'var(--accent-primary)' : 'var(--text-muted)',
+                      lineHeight: 1.2,
+                      marginTop: '2px',
+                    }}
+                  >
                     {s.sub}
                   </div>
                 </div>
               </button>
 
               {index < STAGES.length - 1 && (
-                <div style={{ color: 'var(--border-quiet-line)', margin: '0 4px', display: 'flex', alignItems: 'center' }}>
-                  <ChevronRight size={16} />
+                <div style={{ color: 'var(--border-divider)', margin: '0 2px', display: 'flex', alignItems: 'center' }}>
+                  <ChevronRight size={14} />
                 </div>
               )}
             </React.Fragment>

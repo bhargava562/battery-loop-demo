@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import type {
   Assessment,
   AuditEvent,
@@ -44,18 +44,18 @@ export const Stage06Decide: React.FC<Stage06DecideProps> = ({
   const [justification, setJustification] = useState<string>(
     existingDecision?.justification ||
       (battery.id === 'BL-003'
-        ? 'High reported SoH cannot be trusted until Module M03 undergoes high-precision laboratory discharge and impedance spectroscopy.'
+        ? 'Reported 99% SoH cannot be accepted for second-life integration while Module M03 exhibits an unverified 180 mV cell imbalance and service records are missing.'
         : 'Aligning with verified test results and screening recommendations.')
   );
   const [reviewerName, setReviewerName] = useState<string>(
-    existingDecision?.reviewer || 'B. K. Sharma (Lead Battery Systems Assessor)'
+    existingDecision?.reviewer || 'Lead Battery Systems Assessor'
   );
   const [reviewerRole, setReviewerRole] = useState<string>(
     existingDecision?.reviewerRole || 'High Voltage Diagnostic Engineer'
   );
   const [decisionSaved, setDecisionSaved] = useState(!!existingDecision);
 
-  // Compute outstanding requirements based on chosen pathway and missing fields
+  // Compile outstanding validation requirements
   const outstandingRequirements: string[] = [];
   if (chosenPathway === 'further-controlled-testing') {
     outstandingRequirements.push(
@@ -91,7 +91,7 @@ export const Stage06Decide: React.FC<Stage06DecideProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!justification.trim()) {
-      alert('A technical justification is mandatory to sign off on a human decision.');
+      alert('A technical justification is mandatory to record a human decision.');
       return;
     }
 
@@ -118,186 +118,164 @@ export const Stage06Decide: React.FC<Stage06DecideProps> = ({
 
   return (
     <div style={{
-      maxWidth: '1200px',
-      margin: '0 auto',
-      padding: '24px',
       display: 'flex',
       flexDirection: 'column',
-      gap: '24px',
+      gap: '14px',
+      padding: '16px 24px',
+      maxWidth: '1360px',
+      margin: '0 auto',
+      width: '100%',
       boxSizing: 'border-box',
     }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      {/* Stage Header */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-            <span className="badge badge-teal">STAGE 06 · HUMAN ACTION & AUDIT</span>
-            <span style={{ fontSize: '12px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
-              Case: {battery.id}
-            </span>
+            <span className="badge badge-teal">DECISION</span>
+            <span className="text-caption">Governance Sign-Off · {battery.id}</span>
           </div>
-          <h2 style={{ fontSize: '24px', fontWeight: 700 }}>
-            Human Decision Sign-off & Audit Dossier
-          </h2>
-          <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-            Record human-led governance action, maintain separation of suggestions vs human choice, and finalize audit log
-          </p>
+          <h1>Record triage decision</h1>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <button
             onClick={handlePrint}
-            style={{
-              background: 'transparent',
-              border: '1px solid var(--border-quiet-line)',
-              borderRadius: 'var(--radius-sm)',
-              padding: '8px 12px',
-              fontSize: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              cursor: 'pointer',
-            }}
+            className="btn-secondary"
+            style={{ fontSize: '12px' }}
           >
             <Printer size={13} />
-            Print Report
+            <span>Print Report</span>
           </button>
           <button
             onClick={onExportAudit}
-            style={{
-              background: 'var(--bg-dark-petrol)',
-              color: '#FFF',
-              borderRadius: 'var(--radius-sm)',
-              padding: '8px 14px',
-              fontSize: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              cursor: 'pointer',
-            }}
+            className="btn-secondary"
+            style={{ fontSize: '12px' }}
           >
             <Download size={13} />
-            Export JSON Dossier
+            <span>Export JSON Dossier</span>
           </button>
         </div>
       </div>
 
       {decisionSaved && (
         <div style={{
-          background: 'var(--accent-teal-light)',
-          border: '1px solid var(--accent-instrument-teal)',
+          background: 'var(--accent-primary-light)',
+          border: '1px solid var(--accent-primary)',
           borderRadius: 'var(--radius-sm)',
-          padding: '14px 18px',
+          padding: '12px 16px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <CheckCircle size={20} color="var(--accent-instrument-teal)" />
+            <CheckCircle size={18} color="var(--accent-primary)" />
             <div>
-              <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--accent-instrument-teal)' }}>
-                Human Decision Formally Recorded
+              <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--accent-primary)' }}>
+                Human Decision Formally Recorded in Audit Trail
               </div>
-              <div style={{ fontSize: '12px', color: 'var(--text-forest-graphite)' }}>
-                Signed by {reviewerName} ({reviewerRole}) on {new Date().toLocaleDateString()}. Outstanding validation items remain open.
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                Signed by {reviewerName} ({reviewerRole}) on {new Date().toLocaleDateString()}. Outstanding physical validation requirements remain open.
               </div>
             </div>
           </div>
-          <span className="badge badge-teal">AUDIT SEALED</span>
+          <span className="badge badge-teal">Audit Sealed</span>
         </div>
       )}
 
-      {/* THREE SEPARATE VISUAL ELEMENTS SIDE BY SIDE */}
+      {/* THREE VISIBLY SEPARATE SECTIONS SIDE-BY-SIDE */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: '1fr 1.25fr 1fr',
-        gap: '20px',
+        gap: '18px',
+        alignItems: 'stretch',
       }}>
-        {/* ELEMENT 1: SYSTEM SUGGESTION */}
+        {/* SECTION 1: SYSTEM SUGGESTION */}
         <div style={{
-          background: 'var(--bg-soft-white)',
-          border: '1px solid var(--border-quiet-line)',
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border-divider)',
           borderRadius: 'var(--radius-md)',
-          padding: '20px',
+          padding: '18px',
           display: 'flex',
           flexDirection: 'column',
           gap: '12px',
+          boxShadow: 'var(--shadow-xs)',
         }}>
           <div>
-            <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--text-muted)' }}>
-              ELEMENT 01
+            <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+              SECTION 01
             </span>
-            <h3 style={{ fontSize: '16px', fontWeight: 700, marginTop: '2px' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: 700, margin: '2px 0 0 0' }}>
               System Suggestion
             </h3>
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+            <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
               Deterministic Rule Output
             </span>
           </div>
 
           <div style={{
-            background: '#FAF8F2',
+            background: 'var(--bg-surface-elevated)',
             border: '1px solid var(--border-subtle)',
-            borderRadius: '6px',
-            padding: '14px',
+            borderRadius: 'var(--radius-xs)',
+            padding: '12px',
           }}>
-            <div style={{ marginBottom: '6px' }}>
+            <div style={{ marginBottom: '4px' }}>
               <span className={`badge ${PATHWAY_CONFIG[assessment.pathway].badgeClass}`}>
                 {assessment.pathway}
               </span>
             </div>
-            <h4 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '6px' }}>
+            <h4 style={{ fontSize: '15px', fontWeight: 700, margin: '0 0 4px 0', color: 'var(--text-primary)' }}>
               {assessment.pathwayTitle}
             </h4>
-            <p style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: 1.45, margin: 0 }}>
+            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>
               {PATHWAY_CONFIG[assessment.pathway].shortDesc}
             </p>
           </div>
 
-          <div style={{ fontSize: '12px', color: 'var(--text-forest-graphite)' }}>
-            <strong>Evidence Coverage:</strong> {assessment.evidenceCoverage}%<br />
-            <strong>Confidence:</strong> {assessment.confidence.toUpperCase()}<br />
-            <strong>Primary Rule:</strong> {assessment.ruleIds[0]}
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+            <div><strong>Evidence Coverage:</strong> {assessment.evidenceCoverage}%</div>
+            <div><strong>Screening Confidence:</strong> {assessment.confidence.toUpperCase()}</div>
+            <div><strong>Primary Rule Fired:</strong> {assessment.ruleIds[0]}</div>
           </div>
 
           <div style={{
             marginTop: 'auto',
             fontSize: '11px',
             color: 'var(--text-muted)',
-            fontStyle: 'italic',
             borderTop: '1px solid var(--border-subtle)',
             paddingTop: '8px',
+            lineHeight: 1.35,
           }}>
-            * The system suggestion is an advisory finding and cannot approve vehicle deployment.
+            * Software suggestions represent decision support and cannot grant safety approval.
           </div>
         </div>
 
-        {/* ELEMENT 2: HUMAN DECISION (THE WORKBENCH) */}
+        {/* SECTION 2: YOUR DECISION (HUMAN GOVERNANCE WORKBENCH) */}
         <div style={{
-          background: 'var(--bg-soft-white)',
-          border: '2px solid var(--accent-instrument-teal)',
+          background: 'var(--bg-surface)',
+          border: '2px solid var(--accent-primary)',
           borderRadius: 'var(--radius-md)',
-          padding: '20px',
+          padding: '18px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '14px',
-          boxShadow: 'var(--shadow-md)',
+          gap: '12px',
+          boxShadow: 'var(--shadow-sm)',
         }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--accent-instrument-teal)' }}>
-                ELEMENT 02 · MANDATORY GOVERNANCE
+              <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--accent-primary)', textTransform: 'uppercase' }}>
+                SECTION 02 · MANDATORY GOVERNANCE
               </span>
-              <span className="badge badge-teal">Human In The Loop</span>
+              <span className="badge badge-teal">Human Review</span>
             </div>
-            <h3 style={{ fontSize: '17px', fontWeight: 700, marginTop: '2px' }}>
-              Record Human Decision
+            <h3 style={{ fontSize: '16px', fontWeight: 700, margin: '2px 0 0 0' }}>
+              Your Decision
             </h3>
           </div>
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {/* Pathway Select */}
             <div>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '3px', color: 'var(--text-primary)' }}>
                 Assigned Next Workflow Action:
               </label>
               <select
@@ -305,12 +283,12 @@ export const Stage06Decide: React.FC<Stage06DecideProps> = ({
                 onChange={(e) => setChosenPathway(e.target.value as Pathway)}
                 style={{
                   width: '100%',
-                  padding: '9px 12px',
-                  borderRadius: '4px',
-                  border: '1px solid var(--border-quiet-line)',
+                  padding: '8px 10px',
+                  borderRadius: 'var(--radius-xs)',
+                  border: '1px solid var(--border-divider)',
                   fontSize: '13px',
                   fontWeight: 600,
-                  background: '#FFF',
+                  background: '#FFFFFF',
                   cursor: 'pointer',
                   boxSizing: 'border-box',
                 }}
@@ -335,21 +313,21 @@ export const Stage06Decide: React.FC<Stage06DecideProps> = ({
 
             {chosenPathway !== assessment.pathway && (
               <div style={{
-                background: 'var(--accent-coral-light)',
-                border: '1px solid rgba(231, 111, 81, 0.4)',
-                borderRadius: '4px',
-                padding: '8px 10px',
+                background: 'var(--accent-review-light)',
+                border: '1px solid rgba(255, 114, 94, 0.35)',
+                borderRadius: 'var(--radius-xs)',
+                padding: '6px 10px',
                 fontSize: '11px',
-                color: 'var(--accent-oxide-coral)',
+                color: 'var(--accent-review-coral)',
               }}>
-                <strong>Divergence Flag:</strong> You are choosing an action that diverges from the automated suggestion ({assessment.pathwayTitle}). Please provide robust engineering reasoning below.
+                <strong>Divergence Flag:</strong> You are selecting an action that differs from the system suggestion ({assessment.pathwayTitle}). Please detail your engineering rationale below.
               </div>
             )}
 
             {/* Justification Textarea */}
             <div>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
-                Engineering Decision Justification:
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '3px', color: 'var(--text-primary)' }}>
+                Technical Engineering Rationale:
               </label>
               <textarea
                 value={justification}
@@ -359,12 +337,12 @@ export const Stage06Decide: React.FC<Stage06DecideProps> = ({
                 placeholder="State your technical justification, evidence considered, and safety requirements..."
                 style={{
                   width: '100%',
-                  padding: '8px 12px',
-                  borderRadius: '4px',
-                  border: '1px solid var(--border-quiet-line)',
+                  padding: '8px 10px',
+                  borderRadius: 'var(--radius-xs)',
+                  border: '1px solid var(--border-divider)',
                   fontSize: '12px',
                   fontFamily: 'var(--font-sans)',
-                  background: '#FFF',
+                  background: '#FFFFFF',
                   boxSizing: 'border-box',
                 }}
               />
@@ -373,8 +351,8 @@ export const Stage06Decide: React.FC<Stage06DecideProps> = ({
             {/* Reviewer Details */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: '2px' }}>
-                  Reviewer Name:
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: '2px', color: 'var(--text-secondary)' }}>
+                  Assessor Name:
                 </label>
                 <input
                   type="text"
@@ -382,16 +360,16 @@ export const Stage06Decide: React.FC<Stage06DecideProps> = ({
                   onChange={(e) => setReviewerName(e.target.value)}
                   style={{
                     width: '100%',
-                    padding: '7px 10px',
-                    borderRadius: '4px',
-                    border: '1px solid var(--border-quiet-line)',
+                    padding: '6px 8px',
+                    borderRadius: 'var(--radius-xs)',
+                    border: '1px solid var(--border-divider)',
                     fontSize: '12px',
                     boxSizing: 'border-box',
                   }}
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: '2px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: '2px', color: 'var(--text-secondary)' }}>
                   Role / Title:
                 </label>
                 <input
@@ -400,9 +378,9 @@ export const Stage06Decide: React.FC<Stage06DecideProps> = ({
                   onChange={(e) => setReviewerRole(e.target.value)}
                   style={{
                     width: '100%',
-                    padding: '7px 10px',
-                    borderRadius: '4px',
-                    border: '1px solid var(--border-quiet-line)',
+                    padding: '6px 8px',
+                    borderRadius: 'var(--radius-xs)',
+                    border: '1px solid var(--border-divider)',
                     fontSize: '12px',
                     boxSizing: 'border-box',
                   }}
@@ -413,76 +391,64 @@ export const Stage06Decide: React.FC<Stage06DecideProps> = ({
             {/* Primary Action Button (Explicitly named: Record Human Decision) */}
             <button
               type="submit"
-              style={{
-                background: 'var(--accent-instrument-teal)',
-                color: '#FFFEFA',
-                padding: '12px',
-                borderRadius: 'var(--radius-sm)',
-                fontWeight: 700,
-                fontSize: '14px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                cursor: 'pointer',
-                boxShadow: 'var(--shadow-sm)',
-                marginTop: '4px',
-              }}
+              className="btn-primary"
+              style={{ width: '100%', marginTop: '4px' }}
             >
-              <UserCheck size={16} />
+              <UserCheck size={15} />
               <span>Record Human Decision</span>
             </button>
           </form>
         </div>
 
-        {/* ELEMENT 3: OUTSTANDING REQUIREMENT */}
+        {/* SECTION 3: STILL REQUIRED */}
         <div style={{
-          background: 'var(--bg-soft-white)',
-          border: '1px solid var(--border-quiet-line)',
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border-divider)',
           borderRadius: 'var(--radius-md)',
-          padding: '20px',
+          padding: '18px',
           display: 'flex',
           flexDirection: 'column',
           gap: '12px',
+          boxShadow: 'var(--shadow-xs)',
         }}>
           <div>
-            <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--signal-amber)' }}>
-              ELEMENT 03
+            <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--signal-amber)', textTransform: 'uppercase' }}>
+              SECTION 03
             </span>
-            <h3 style={{ fontSize: '16px', fontWeight: 700, marginTop: '2px' }}>
-              Outstanding Requirements
+            <h3 style={{ fontSize: '16px', fontWeight: 700, margin: '2px 0 0 0' }}>
+              Still Required
             </h3>
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-              Mandatory physical tests still open
+            <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+              Open Physical Validation Gates
             </span>
           </div>
 
           <div style={{
             background: 'var(--signal-amber-light)',
-            border: '1px solid rgba(217, 164, 65, 0.4)',
-            borderRadius: '6px',
-            padding: '12px',
+            border: '1px solid rgba(228, 173, 70, 0.4)',
+            borderRadius: 'var(--radius-xs)',
+            padding: '10px 12px',
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: '#9E7019', marginBottom: '4px' }}>
-              <AlertTriangle size={14} />
-              <span>Safety Gate Active</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: '#8C6114', marginBottom: '2px' }}>
+              <AlertTriangle size={13} />
+              <span>Mandatory Physical Gates</span>
             </div>
-            <p style={{ fontSize: '11px', color: 'var(--text-forest-graphite)', margin: 0, lineHeight: 1.4 }}>
-              No pack may be cleared for second-life energization without physical execution and logging of the following validation tests:
+            <p style={{ fontSize: '11px', color: 'var(--text-primary)', margin: 0, lineHeight: 1.35 }}>
+              The pack cannot proceed to second-life energization until the following physical tests are executed and certified:
             </p>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '12px' }}>
             {outstandingRequirements.map((req, i) => (
               <div
                 key={i}
                 style={{
                   display: 'flex',
                   alignItems: 'flex-start',
-                  gap: '8px',
-                  background: '#F9F7F1',
-                  padding: '8px 10px',
-                  borderRadius: '4px',
+                  gap: '6px',
+                  background: 'var(--bg-surface-elevated)',
+                  padding: '7px 9px',
+                  borderRadius: 'var(--radius-xs)',
                   border: '1px solid var(--border-subtle)',
                 }}
               >
@@ -494,7 +460,7 @@ export const Stage06Decide: React.FC<Stage06DecideProps> = ({
                 }}>
                   0{i + 1}
                 </span>
-                <span style={{ color: 'var(--text-forest-graphite)', lineHeight: 1.4 }}>
+                <span style={{ color: 'var(--text-primary)', lineHeight: 1.35, fontSize: '11px' }}>
                   {req}
                 </span>
               </div>
@@ -505,29 +471,30 @@ export const Stage06Decide: React.FC<Stage06DecideProps> = ({
             marginTop: 'auto',
             fontSize: '11px',
             color: 'var(--text-muted)',
-            fontStyle: 'italic',
             borderTop: '1px solid var(--border-subtle)',
             paddingTop: '8px',
+            lineHeight: 1.35,
           }}>
-            * Signed decisions transition to qualified laboratory triage queues.
+            * Signed decisions route to certified physical laboratory queues.
           </div>
         </div>
       </div>
 
       {/* COMPLETE DECISION & AUDIT TIMELINE */}
       <div style={{
-        background: 'var(--bg-soft-white)',
-        border: '1px solid var(--border-quiet-line)',
+        background: 'var(--bg-surface)',
+        border: '1px solid var(--border-divider)',
         borderRadius: 'var(--radius-md)',
-        padding: '24px',
+        padding: '18px 20px',
+        boxShadow: 'var(--shadow-xs)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
           <div>
-            <h3 style={{ fontSize: '18px', fontWeight: 700 }}>
+            <h3 style={{ fontSize: '16px', fontWeight: 700, margin: '0 0 2px 0' }}>
               Audit History & Decision Timeline
             </h3>
-            <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-              Tamper-evident chronological timeline of all operator interactions, telemetry challenges, and governance actions
+            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
+              Chronological ledger of operator interactions, telemetry challenges, and governance actions
             </p>
           </div>
           <span className="badge badge-neutral">
@@ -538,8 +505,8 @@ export const Stage06Decide: React.FC<Stage06DecideProps> = ({
         <div style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: '12px',
-          maxHeight: '380px',
+          gap: '8px',
+          maxHeight: '300px',
           overflowY: 'auto',
           paddingRight: '6px',
         }}>
@@ -549,9 +516,9 @@ export const Stage06Decide: React.FC<Stage06DecideProps> = ({
               style={{
                 display: 'flex',
                 alignItems: 'flex-start',
-                gap: '14px',
-                borderLeft: '2px solid var(--border-quiet-line)',
-                paddingLeft: '14px',
+                gap: '12px',
+                borderLeft: '2px solid var(--border-divider)',
+                paddingLeft: '12px',
                 position: 'relative',
               }}
             >
@@ -559,22 +526,22 @@ export const Stage06Decide: React.FC<Stage06DecideProps> = ({
               <div style={{
                 position: 'absolute',
                 left: '-5px',
-                top: '4px',
+                top: '5px',
                 width: '8px',
                 height: '8px',
                 borderRadius: '50%',
                 background:
                   ev.type === 'DECISION_RECORDED'
-                    ? 'var(--accent-instrument-teal)'
+                    ? 'var(--accent-primary)'
                     : ev.type === 'CORRECTION_RECORDED'
-                    ? 'var(--accent-oxide-coral)'
+                    ? 'var(--accent-review-coral)'
                     : ev.type === 'REASONING_FLAGGED'
                     ? 'var(--risk-red)'
-                    : 'var(--text-subtle)',
+                    : 'var(--text-muted)',
               }} />
 
               <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1px' }}>
                   <span className={
                     ev.type === 'DECISION_RECORDED'
                       ? 'badge badge-teal'
@@ -586,15 +553,15 @@ export const Stage06Decide: React.FC<Stage06DecideProps> = ({
                   }>
                     {ev.type.replace('_', ' ')}
                   </span>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-subtle)' }}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-muted)' }}>
                     {new Date(ev.timestamp).toLocaleTimeString()} · {new Date(ev.timestamp).toLocaleDateString()}
                   </span>
-                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
                     by {ev.author}
                   </span>
                 </div>
 
-                <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-forest-graphite)' }}>
+                <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>
                   {ev.summary}
                 </div>
               </div>
@@ -603,46 +570,25 @@ export const Stage06Decide: React.FC<Stage06DecideProps> = ({
         </div>
       </div>
 
-      {/* NAVIGATION */}
+      {/* Navigation Footer */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingTop: '8px',
+        paddingTop: '6px',
       }}>
         <button
           onClick={onBack}
-          style={{
-            background: 'transparent',
-            border: '1px solid var(--border-quiet-line)',
-            borderRadius: 'var(--radius-sm)',
-            padding: '10px 18px',
-            fontSize: '13px',
-            fontWeight: 600,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            cursor: 'pointer',
-          }}
+          className="btn-secondary"
         >
-          <ArrowLeft size={16} />
+          <ArrowLeft size={15} />
           <span>Back to Simulator</span>
         </button>
 
         <button
           onClick={onResetCase}
-          style={{
-            background: 'transparent',
-            color: 'var(--text-muted)',
-            border: '1px solid var(--border-quiet-line)',
-            borderRadius: 'var(--radius-sm)',
-            padding: '10px 16px',
-            fontSize: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            cursor: 'pointer',
-          }}
+          className="btn-secondary"
+          style={{ fontSize: '12px' }}
         >
           <RotateCcw size={13} />
           <span>Restore Seeded Case State</span>

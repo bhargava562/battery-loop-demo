@@ -4,6 +4,7 @@ import type {
   Assessment,
   AuditEvent,
   BatteryCase,
+  EvidenceRecord,
   HumanDecisionRecord,
   ReasoningFlag,
   ReviewRecord,
@@ -11,10 +12,14 @@ import type {
 } from '../features/assessment/assessment.types';
 import { evaluateBattery } from '../features/assessment/evaluateBattery';
 
+import { type AppRoute, parseHash } from '../app/routes';
+
 const STORAGE_KEY = 'batteryloop_workspace_v1';
 
 export interface BatteryLoopState {
-  currentStage: number; // 1 to 6
+  currentRoute: AppRoute;
+  sidebarCollapsed: boolean;
+  currentStage: number; // 1 to 6 (kept for internal case wizard compatibility)
   selectedBatteryId: string;
   selectedModuleId: string | null;
   explode3DView: boolean;
@@ -29,12 +34,22 @@ export interface BatteryLoopState {
   auditLog: AuditEvent[];
 
   // Actions
+  setCurrentRoute: (route: AppRoute) => void;
+  toggleSidebar: () => void;
   setStage: (stage: number) => void;
   selectBattery: (id: string) => void;
   selectModule: (id: string | null) => void;
   toggleExplodeView: () => void;
   dismissLoopSpeech: () => void;
   restoreLoopSpeech: () => void;
+
+  registerBattery: (battery: BatteryCase) => void;
+  importEvidenceToCase: (
+    batteryId: string,
+    importedEvidence: Record<string, EvidenceRecord>,
+    sourceName: string,
+    metadataUpdates?: Partial<BatteryCase>
+  ) => void;
 
   recordEvidenceCorrection: (
     batteryId: string,
@@ -74,6 +89,7 @@ function loadInitialState() {
     if (raw) {
       const parsed = JSON.parse(raw);
       return {
+        customCases: parsed.customCases || {},
         reviewerOverrides: parsed.reviewerOverrides || {},
         reviewRecords: parsed.reviewRecords || [],
         reasoningFlags: parsed.reasoningFlags || [],
@@ -85,6 +101,7 @@ function loadInitialState() {
     console.warn('Could not load localStorage state:', e);
   }
   return {
+    customCases: {},
     reviewerOverrides: {},
     reviewRecords: [],
     reasoningFlags: [],
@@ -95,7 +112,7 @@ function loadInitialState() {
         timestamp: new Date().toISOString(),
         batteryId: 'BL-003',
         type: 'SELECT_BATTERY' as const,
-        summary: 'Demo initialized with baseline case BL-003 selected.',
+        summary: 'Workspace initialized with baseline triage case BL-003 selected.',
         author: 'System Auto-Seed',
       },
     ],
@@ -105,19 +122,99 @@ function loadInitialState() {
 const saved = loadInitialState();
 
 export const useBatteryLoopStore = create<BatteryLoopState>((set, get) => ({
+  currentRoute: parseHash(typeof window !== 'undefined' ? window.location.hash || '#/workspace' : '#/workspace'),
+  sidebarCollapsed: false,
   currentStage: 1,
   selectedBatteryId: 'BL-003',
   selectedModuleId: 'M03',
   explode3DView: false,
   loopSpeechDismissed: false,
 
-  batteryCases: DEMO_BATTERIES,
+  batteryCases: { ...DEMO_BATTERIES, ...saved.customCases },
   reviewerOverrides: saved.reviewerOverrides,
   reviewRecords: saved.reviewRecords,
   reasoningFlags: saved.reasoningFlags,
   simulatedInputs: null,
   humanDecisions: saved.humanDecisions,
   auditLog: saved.auditLog,
+
+  setCurrentRoute: (route: AppRoute) => {
+    set({ currentRoute: route, loopSpeechDismissed: false });
+  },
+
+  toggleSidebar: () => {
+    set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed }));
+  },
+
+  registerBattery: (battery: BatteryCase) => {
+    const audit: AuditEvent = {
+      id: `audit_${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      batteryId: battery.id,
+      type: 'CASE_REGISTERED',
+      summary: `Registered new battery case ${battery.id} (${battery.vehicleModel}) for assessment intake.`,
+      author: 'Lead Reviewer',
+    };
+
+    set((state) => ({
+      batteryCases: {
+        ...state.batteryCases,
+        [battery.id]: battery,
+      },
+      selectedBatteryId: battery.id,
+      selectedModuleId: battery.modules[0]?.moduleId || 'M01',
+      auditLog: [audit, ...state.auditLog],
+    }));
+
+    persistState(get());
+  },
+
+  importEvidenceToCase: (
+    batteryId: string,
+    importedEvidence: Record<string, EvidenceRecord>,
+    sourceName: string,
+    metadataUpdates?: Partial<BatteryCase>
+  ) => {
+    const state = get();
+    const existing = state.batteryCases[batteryId] || DEMO_BATTERIES[batteryId];
+    if (!existing) return;
+
+    const mergedEvidence = {
+      ...existing.evidence,
+      ...importedEvidence,
+    };
+
+    // Calculate updated completeness based on verified records
+    const verifiedCount = Object.values(mergedEvidence).filter((e) => e.status === 'verified').length;
+    const completeness = verifiedCount >= 4 ? 'complete' : verifiedCount >= 2 ? 'partial' : 'missing';
+
+    const updatedCase: BatteryCase = {
+      ...existing,
+      ...(metadataUpdates || {}),
+      evidence: mergedEvidence,
+      evidenceCompleteness: completeness,
+    };
+
+    const audit: AuditEvent = {
+      id: `audit_${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      batteryId,
+      type: 'EVIDENCE_IMPORTED',
+      summary: `Imported structured evidence records from "${sourceName}". ${Object.keys(importedEvidence).length} fields mapped.`,
+      details: { sourceName, fields: Object.keys(importedEvidence) },
+      author: 'Lead Reviewer',
+    };
+
+    set((s) => ({
+      batteryCases: {
+        ...s.batteryCases,
+        [batteryId]: updatedCase,
+      },
+      auditLog: [audit, ...s.auditLog],
+    }));
+
+    persistState(get());
+  },
 
   setStage: (stage: number) => {
     set({ currentStage: Math.max(1, Math.min(6, stage)), loopSpeechDismissed: false });
@@ -393,10 +490,12 @@ export const useBatteryLoopStore = create<BatteryLoopState>((set, get) => ({
   resetEntireDemo: () => {
     localStorage.removeItem(STORAGE_KEY);
     set({
+      currentRoute: { type: 'workspace' },
       currentStage: 1,
       selectedBatteryId: 'BL-003',
       selectedModuleId: 'M03',
       explode3DView: false,
+      batteryCases: DEMO_BATTERIES,
       reviewerOverrides: {},
       reviewRecords: [],
       reasoningFlags: [],
@@ -496,7 +595,16 @@ export const useBatteryLoopStore = create<BatteryLoopState>((set, get) => ({
 
 function persistState(state: BatteryLoopState) {
   try {
+    // Only persist custom non-demo cases
+    const customCases: Record<string, BatteryCase> = {};
+    for (const [id, c] of Object.entries(state.batteryCases)) {
+      if (!DEMO_BATTERIES[id]) {
+        customCases[id] = c;
+      }
+    }
+
     const data = {
+      customCases,
       reviewerOverrides: state.reviewerOverrides,
       reviewRecords: state.reviewRecords,
       reasoningFlags: state.reasoningFlags,
