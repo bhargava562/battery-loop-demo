@@ -1,11 +1,121 @@
 # BatteryLoop — Decision Theatre
 
-> **Interactive 3D Battery Second-Life Decision Workspace**  
+> **Battery Triage & Evidence Reconciliation Service**  
+> *Closing the gap between measuring EV battery condition and making defensible, auditable disposition decisions.*  
 > Built with React 19, TypeScript, Three.js, React Three Fiber, Zustand, and Vitest.
 
-BatteryLoop is an industrial engineering workspace designed to evaluate high-voltage electric vehicle and industrial battery packs for second-life stationary storage, module-level reconditioning, or material recycling. 
+---
 
-Rather than a static dashboard or black-box model, BatteryLoop connects an **interactive 3D procedural battery pack** to an **explainable rule engine**, a **human challenge & review layer**, a **live what-if simulator**, and a **tamper-evident audit timeline**.
+## 🎯 1. The Exact Problem Statement
+
+> **Problem Statement:**  
+> Independent EV battery assessors and second-life battery operators lack a reliable, standardized way to reconcile battery-management-system (BMS) health estimates, physical inspection findings, diagnostic records, and electrical test results into a traceable disposition decision. This evidence gap can lead to uncertain battery grading, unnecessary testing or teardown, delayed decisions, and difficulty justifying whether a battery should be repaired, reused, repurposed, or recycled.
+
+### The One-Sentence Root Cause
+> **Battery condition data exists, but it is not consistently reconciled with physical evidence, operating history, and standardized test conditions to support an auditable decision about the battery's next use.**
+
+This identifies a concrete operational failure rather than a vague generalization like "EV battery recycling is inefficient":
+- **Who:** Independent battery assessors, refurbishers, and second-life operators.
+- **When:** During post-collision assessment, battery retirement, refurbishment, or second-life grading.
+- **What goes wrong:** Evidence is fragmented, inconsistent, or insufficiently traceable.
+- **Why it matters:** The operator cannot confidently justify the next action or safety qualification.
+- **What needs fixing:** Evidence reconciliation and decision support, rather than simply collecting more raw battery telemetry.
+
+---
+
+## 🔬 2. Design Thinking Analysis
+
+### Stage 1 — Empathize: Who has the problem?
+- **Primary user:** Battery assessment and disposition managers at independent EV salvage yards, battery refurbishers, and second-life battery facilities.
+- **Secondary users:** Motor insurance claims assessors and EV workshop technicians who must decide whether a damaged pack can be repaired, reused, repurposed, or must be recycled.
+- **Their critical job:** Make a defensible decision using incomplete or inconsistent battery evidence, without incurring unnecessary testing, labor, or safety risks.
+
+### Stage 2 — Define: What exactly fails?
+Workshop scan reports, BMS health estimates, physical damage observations, usage histories, and laboratory measurements do not necessarily agree or exist in one auditable record. As a result, the decision-maker cannot establish the battery's actual condition or justify its next destination from the available evidence alone.
+
+### Stage 3 — Ideate: What should be built?
+A **Battery Triage and Evidence Reconciliation Service** that combines existing diagnostic files, physical inspection results, battery architecture, and test measurements into a consistent, traceable assessment.
+
+### Stage 4 — Prototype: What is the smallest useful product?
+Upload existing workshop PDFs, CSV files, and inspection photos. Extract the evidence, flag contradictions, identify missing safety checks, and produce a reviewable disposition report. *No new diagnostic hardware is required for the initial software prototype.*
+
+### Stage 5 — Test: How will you prove the solution works?
+Compare the tool against independently verified assessments of real battery cases. Measure agreement with expert decisions, false-safe and false-reject rates, assessment time, unnecessary teardown avoided, and completeness of the evidence trail.
+
+---
+
+## 📊 3. What the Data Actually Proves
+
+The supplied research findings provide quantitative starting points and engineering leads worth testing:
+
+| Metric | Empirical Finding | Context & Realistic Interpretation |
+| :--- | :--- | :--- |
+| **BMS Health vs. Physical Evidence** | **Up to +91 pp** | Largest positive discrepancy observed. Accompanied by a −5.8 pp empirical gap and typical ±5 pp BMS variance. Illustrates why BMS estimates alone must never be treated as verified usable capacity. |
+| **Manual Teardown Burden** | **525 minutes** | 8.75 hours of manual teardown in documented process-duration charts. Identifies unnecessary teardown as a high-leverage metric to reduce (without assuming software eliminates all physical labor). |
+| **Extended Electrical Testing** | **24+ hours** | Duration required for a full cycler capacity test. Demonstrates the need for rapid screening to prioritize packs for full cycler testing rather than testing every candidate blind. |
+| **Automated Extraction Reliability** | **78%** | Completely correct extraction in GPT-4 diagnostic ingestion benchmarks (with 13% partially correct, 10% incorrect, and 69% string-run stability). Confirms that human-in-the-loop verification is mandatory. |
+
+> [!NOTE]  
+> **What we can confidently say:** The data identifies a credible engineering and workflow problem with measurable starting points.  
+> **What we cannot yet claim without pilots:** That *every* assessor experiences this exact rate, that a specific percentage of write-offs is universally eliminated, or that software delivers an unverified dollar saving across all battery formats.
+
+---
+
+## 🛠️ 4. The Proposed Solution: Battery Triage & Evidence Reconciliation
+
+A software service for EV battery assessors that consolidates existing diagnostic reports, physical inspection evidence, operating history, and electrical measurements into a standardized assessment with traceable supporting evidence.
+
+### How It Works (5-Step Engine)
+1. **Ingest existing evidence:** Accept workshop PDFs, diagnostic CSVs, inspection photos, battery identifiers, and laboratory test results.
+2. **Validate and reconcile:** Extract values, preserve source provenance, detect conflicting readings, and flag missing or incompatible measurement conditions.
+3. **Apply engineering checks:** Compare BMS-reported state of health with available capacity tests, cycle history, battery architecture, resistance measurements, and thermal/state-of-charge conditions.
+4. **Flag safety and uncertainty:** Identify missing evidence, unresolved faults, collision intrusion, and cases requiring qualified human inspection. *Never declare a physically damaged pack safe based on software alone.*
+5. **Produce a disposition dossier:** Present the evidence and a reasoned recommendation: further testing, repair assessment, reuse assessment, second-life evaluation, recycling, or safe quarantine pending review.
+
+### Why It Is Valuable
+It connects four pillars that are traditionally handled in disconnected silos:
+- What the diagnostic tool reported
+- What the physical inspection found
+- What the electrical measurements support
+- Why the final disposition decision was made
+
+---
+
+## ✅ 5. Evidence Validation Checklist & Pilot Plan
+
+Before claiming industry-wide certainty, we follow a rigorous 6-step customer validation roadmap:
+
+- [ ] **1. Interview actual decision-makers:** Speak to independent salvage assessors, refurbishers, and insurer claims assessors about their most recent real battery disposition case.
+- [ ] **2. Collect real anonymized case records:** Obtain original BMS reports, physical inspection records, electrical test results, and the final decision for the same battery.
+- [ ] **3. Measure the evidence gap:** Count cases where a critical discrepancy, missing measurement condition, or untraceable record changes or delays a decision.
+- [ ] **4. Establish the current cost:** Record assessment turnaround time, teardown labor, testing cost, quarantine duration, and documented unnecessary write-offs.
+- [ ] **5. Run a blinded comparison:** Compare current practice against our prototype and an independent expert's assessment of the same cases.
+- [ ] **6. Verify the improvement:** Report actual agreement rates, error rates, time saved, and costs avoided, including uncertainty and failures.
+
+*Pilot Target:* **30–50 consecutive, anonymized cases** from one partner facility to establish baseline repeatability.
+
+---
+
+## 🎙️ 6. The Pitch: Exact Words to Say
+
+### Problem
+> "Our focus is a specific decision-making gap in EV battery assessment. Independent battery assessors and second-life operators must decide whether a battery should be repaired, reused, repurposed, or recycled. But BMS health estimates, diagnostic reports, physical inspection findings, and electrical test results do not always provide one consistent, traceable picture of battery condition. Our research materials illustrate the scale of the technical challenge, including a reported BMS-to-physical-energy discrepancy of up to 91 percentage points and a manual teardown process taking 8.75 hours in one documented example. These figures are evidence of potential severity, not claims that every battery experiences the same problem. The next step is to validate how frequently the problem occurs in real operating facilities and what it costs them."
+
+### Solution
+> "We propose a Battery Triage and Evidence Reconciliation Service. The platform takes existing workshop diagnostic files, inspection evidence, battery history, and available electrical test results. It checks for inconsistencies, identifies missing safety evidence, and produces a traceable assessment with a recommended next step and clear reasons supporting that recommendation. Instead of trusting one BMS number or relying on disconnected spreadsheets and manual interpretation, assessors receive a consistent, reviewable evidence dossier."
+
+### How We Will Prove Impact
+> "We will pilot the solution using real battery cases and compare its results with independent expert assessments and the existing workflow. We will measure decision agreement, assessment time, unnecessary teardown avoided, and the completeness of the evidence trail. We will only claim cost savings or reductions in unnecessary write-offs after those improvements have been demonstrated in the pilot."
+
+---
+
+## 🛡️ 7. When Someone Challenges Your Confidence
+
+If an evaluator or judge asks: *“Are you 100% sure this problem exists?”*, respond with:
+
+> *"I am confident that the evidence-reconciliation challenge is technically real, and our supplied research identifies concrete examples of it. I am not claiming that every battery assessor experiences it or that we have already measured its prevalence across the industry. Our next step is to validate the frequency, financial impact, and willingness to pay with real operators and real case records. That is how we will turn a documented engineering problem into a verified customer problem."*
+
+**Recommended Go-To-Market Entry:** Make the first product specifically about **post-collision EV battery triage for independent assessors and salvage operators**. It is a narrower, testable entry point than trying to solve the entire battery lifecycle at once. Once the workflow is validated, expand into second-life grading, residual-value assessment, and lifecycle traceability.
 
 ---
 
