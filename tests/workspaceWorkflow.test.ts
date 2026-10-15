@@ -5,17 +5,19 @@ import { DEMO_BATTERIES } from '../src/data/demoBatteries';
 import type { BatteryCase } from '../src/features/assessment/assessment.types';
 
 describe('Product Navigation & Routing', () => {
-  it('parses workspace, library, registration, and case subtabs accurately', () => {
-    expect(parseHash('')).toEqual({ type: 'workspace' });
+  it('parses overview, workspace, library, registration, and case subtabs accurately', () => {
+    expect(parseHash('')).toEqual({ type: 'overview' });
+    expect(parseHash('#/')).toEqual({ type: 'overview' });
+    expect(parseHash('#/overview')).toEqual({ type: 'overview' });
     expect(parseHash('#/workspace')).toEqual({ type: 'workspace' });
-    expect(parseHash('#/batteries')).toEqual({ type: 'batteries' });
-    expect(parseHash('#/batteries/new')).toEqual({ type: 'battery-new' });
-    expect(parseHash('#/batteries/BL-003/inspect')).toEqual({
+    expect(parseHash('#/assessments')).toEqual({ type: 'batteries' });
+    expect(parseHash('#/assessments/new')).toEqual({ type: 'battery-new' });
+    expect(parseHash('#/assessments/BL-003/inspection')).toEqual({
       type: 'battery-case',
       batteryId: 'BL-003',
       tab: 'inspect',
     });
-    expect(parseHash('#/batteries/BL-003/import')).toEqual({
+    expect(parseHash('#/assessments/BL-003/evidence')).toEqual({
       type: 'battery-case',
       batteryId: 'BL-003',
       tab: 'import',
@@ -23,14 +25,16 @@ describe('Product Navigation & Routing', () => {
     expect(parseHash('#/history')).toEqual({ type: 'history' });
     expect(parseHash('#/settings')).toEqual({ type: 'settings' });
     expect(parseHash('#/dossiers')).toEqual({ type: 'dossiers' });
+    expect(parseHash('#/reports')).toEqual({ type: 'dossiers' });
   });
 
   it('correctly serializes routes back to hash strings', () => {
+    expect(routeToHash({ type: 'overview' })).toBe('#/overview');
     expect(routeToHash({ type: 'workspace' })).toBe('#/workspace');
-    expect(routeToHash({ type: 'batteries' })).toBe('#/batteries');
-    expect(routeToHash({ type: 'battery-new' })).toBe('#/batteries/new');
+    expect(routeToHash({ type: 'batteries' })).toBe('#/assessments');
+    expect(routeToHash({ type: 'battery-new' })).toBe('#/assessments/new');
     expect(routeToHash({ type: 'battery-case', batteryId: 'BL-003', tab: 'review' })).toBe(
-      '#/batteries/BL-003/review'
+      '#/assessments/BL-003/review'
     );
   });
 });

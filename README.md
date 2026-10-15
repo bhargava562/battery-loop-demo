@@ -76,18 +76,19 @@ All interactions, telemetry challenges, and decisions are permanently chronicled
 | **3D Graphics** | Three.js + React Three Fiber + Drei | Procedural 3D battery tray, busbars, and 24 interactive module meshes |
 | **State Management** | Zustand + LocalStorage | Synchronizes battery state, reviewer edits, and audit logs across stages |
 | **Icons & Micro-UI** | Lucide React | Clean industrial iconography |
-| **Typography** | Space Grotesk · IBM Plex Sans · IBM Plex Mono | Engineering field-lab typography (Google Fonts) |
+| **Typography** | Manrope · Inter · JetBrains Mono | Scientific editorial typography (Google Fonts) |
 | **Testing** | Vitest + React Testing Library | Automated rule engine unit tests |
 
-### Industrial Design Tokens & Color Palette
-- **Warm Paper (`#F4F1E8`)**: Page canvas and work background
-- **Soft White (`#FFFEFA`)**: Evidence cards and elevation surfaces
-- **Forest Graphite (`#172B2A`)**: Headings and primary text
-- **Deep Petrol (`#163C38`)**: Sidebar and workbench header
-- **Instrument Teal (`#117C72`)**: Active stage, primary action, nominal selection
-- **Oxide Coral (`#E76F51`)**: Review changes, human overrides, telemetry conflict
-- **Signal Amber (`#D9A441`)**: Incomplete evidence, pending test gates
-- **Risk Red (`#BE3D3D`)**: Critical safety flags, deployment blockers
+### Scientific Editorial Tokens & Light Theme Palette
+- **Canvas Background (`#F6F8FC`)**: Spacious, clean application canvas
+- **Primary Surface (`#FFFFFF`)**: Pure white cards and elevation surfaces
+- **Secondary Surface (`#F0F5FA`)**: Soft technical backdrop
+- **Deep Navy (`#102B46` / `#12243A`)**: Editorial headlines and primary text
+- **Teal Accent (`#16A890`)**: Primary actions, brand energy, and validated status
+- **Scientific Cyan (`#19B9D0`)**: Active visual highlights and constellation nodes
+- **Review Coral (`#E05A47`)**: Human overrides, telemetry conflict warnings
+- **Status Amber (`#D97706`)**: Incomplete evidence, pending test gates
+- **Risk Red (`#EF4444`)**: Critical safety flags, deployment blockers
 
 ---
 

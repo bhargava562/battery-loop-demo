@@ -250,84 +250,8 @@ export const BatteryCaseWorkspaceScreen: React.FC<BatteryCaseWorkspaceScreenProp
                 overflow: 'hidden',
               }}
             >
-              {/* Floating Top HUD inside 3D Canvas */}
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '14px',
-                  left: '16px',
-                  right: '16px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  zIndex: 10,
-                  pointerEvents: 'none',
-                }}
-              >
-                {/* Module Target Pill */}
-                <div
-                  style={{
-                    pointerEvents: 'auto',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    background: 'rgba(11, 33, 31, 0.75)',
-                    backdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                    padding: '4px 10px',
-                    borderRadius: 'var(--radius-sm)',
-                    fontSize: '12px',
-                    color: '#FFFFFF',
-                  }}
-                >
-                  <span style={{ color: '#869792' }}>Module:</span>
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-mono)',
-                      fontWeight: 700,
-                      color: selectedModuleId === 'M03' ? 'var(--accent-review-coral)' : 'var(--accent-highlight)',
-                    }}
-                  >
-                    {selectedModuleId || 'M01'}
-                  </span>
-                  {selectedModuleId === 'M03' && (
-                    <span className="badge badge-coral" style={{ fontSize: '10px', padding: '1px 5px' }}>
-                      180 mV Delta
-                    </span>
-                  )}
-                </div>
-
-                {/* Floating View Controls */}
-                <div
-                  style={{
-                    pointerEvents: 'auto',
-                    display: 'flex',
-                    gap: '6px',
-                    background: 'rgba(11, 33, 31, 0.75)',
-                    backdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                    padding: '3px',
-                    borderRadius: 'var(--radius-sm)',
-                  }}
-                >
-                  <button
-                    onClick={onToggleExplode}
-                    style={{
-                      padding: '4px 10px',
-                      borderRadius: 'var(--radius-xs)',
-                      background: explode3DView ? 'var(--accent-highlight)' : 'transparent',
-                      color: explode3DView ? 'var(--accent-highlight-text)' : '#FFFFFF',
-                      fontSize: '11px',
-                      fontWeight: 600,
-                    }}
-                  >
-                    {explode3DView ? 'Assemble Pack' : 'Explode View'}
-                  </button>
-                </div>
-              </div>
-
               {/* Procedural 3D Canvas */}
-              <div style={{ flex: 1, position: 'relative' }}>
+              <div style={{ flex: 1, position: 'relative', width: '100%', height: '100%', minHeight: '520px' }}>
                 <BatteryScene
                   battery={battery}
                   selectedModuleId={selectedModuleId}
@@ -335,34 +259,6 @@ export const BatteryCaseWorkspaceScreen: React.FC<BatteryCaseWorkspaceScreenProp
                   onToggleExplode={onToggleExplode}
                   onSelectModule={onSelectModule}
                 />
-              </div>
-
-              {/* Floating Bottom Legend HUD */}
-              <div
-                style={{
-                  position: 'absolute',
-                  bottom: '12px',
-                  left: '16px',
-                  right: '16px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  fontSize: '11px',
-                  color: '#869792',
-                  pointerEvents: 'none',
-                }}
-              >
-                <span>Click any module mesh to inspect · Left-drag to orbit · Scroll to zoom</span>
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <span style={{ width: '8px', height: '8px', borderRadius: '2px', background: 'var(--accent-highlight)' }} />
-                    <span style={{ color: '#EAF0EA' }}>Selected</span>
-                  </span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <span style={{ width: '8px', height: '8px', borderRadius: '2px', background: 'var(--accent-review-coral)' }} />
-                    <span style={{ color: '#EAF0EA' }}>Anomaly (M03)</span>
-                  </span>
-                </div>
               </div>
             </div>
 

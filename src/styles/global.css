@@ -32,16 +32,25 @@ html, body {
 
 h1, .heading-1 {
   font-family: var(--font-display);
-  font-size: clamp(26px, 2.2vw, 32px);
+  font-size: clamp(28px, 2.5vw, 38px);
   font-weight: 700;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.03em;
   color: var(--text-primary);
-  line-height: 1.2;
+  line-height: 1.15;
+}
+
+.heading-editorial {
+  font-family: var(--font-display);
+  font-size: clamp(38px, 4.2vw, 56px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  color: var(--deep-navy);
+  line-height: 1.08;
 }
 
 h2, .heading-2 {
   font-family: var(--font-display);
-  font-size: clamp(20px, 1.8vw, 24px);
+  font-size: clamp(20px, 1.8vw, 26px);
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--text-primary);
@@ -50,7 +59,7 @@ h2, .heading-2 {
 
 h3, .heading-3 {
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 600;
   letter-spacing: -0.015em;
   color: var(--text-primary);
@@ -59,7 +68,7 @@ h3, .heading-3 {
 p, .text-body {
   font-family: var(--font-sans);
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.55;
   color: var(--text-secondary);
 }
 
@@ -74,6 +83,22 @@ p, .text-body {
   font-family: var(--font-mono);
   font-size: 13px;
   letter-spacing: -0.01em;
+}
+
+/* Eyebrow Label Tag */
+.eyebrow-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-teal);
+  background: var(--accent-teal-light);
+  border-radius: var(--radius-full);
+  font-family: var(--font-sans);
 }
 
 /* Interactive Elements */
@@ -92,19 +117,19 @@ button {
 }
 
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
-  outline: 2px solid var(--accent-primary);
+  outline: 2px solid var(--accent-cyan);
   outline-offset: 2px;
 }
 
 /* Primary Button Styling */
 .btn-primary {
-  background: var(--accent-primary);
+  background: var(--deep-navy);
   color: #FFFFFF;
-  font-family: var(--font-sans);
-  font-size: 14px;
+  font-family: var(--font-display);
+  font-size: 13px;
   font-weight: 600;
-  padding: 10px 18px;
-  border-radius: var(--radius-sm);
+  padding: 9px 18px;
+  border-radius: var(--radius-full);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -114,12 +139,34 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 
 .btn-primary:hover {
-  background: var(--accent-primary-hover);
+  background: #193B5E;
   transform: translateY(-1px);
 }
 
 .btn-primary:active {
   transform: translateY(0);
+}
+
+.btn-cta-teal {
+  background: var(--accent-teal);
+  color: #FFFFFF;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 11px 22px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(22, 168, 144, 0.25);
+  transition: all 0.15s ease;
+}
+
+.btn-cta-teal:hover {
+  background: var(--accent-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(22, 168, 144, 0.35);
 }
 
 .btn-secondary {
@@ -130,15 +177,16 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   font-size: 13px;
   font-weight: 500;
   padding: 8px 14px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-full);
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  transition: all 0.15s ease;
 }
 
 .btn-secondary:hover {
-  background: var(--bg-surface-muted);
-  border-color: var(--text-muted);
+  background: var(--bg-surface-secondary);
+  border-color: var(--border-strong);
 }
 
 /* Status Badges */
@@ -149,19 +197,24 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   padding: 3px 8px;
   font-size: 11px;
   font-weight: 600;
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-full);
   letter-spacing: 0.02em;
   font-family: var(--font-sans);
 }
 
 .badge-teal {
-  background: var(--accent-primary-light);
-  color: var(--accent-primary);
+  background: var(--status-verified-bg);
+  color: var(--status-verified);
+}
+
+.badge-cyan {
+  background: var(--accent-cyan-light);
+  color: #0E8394;
 }
 
 .badge-lime {
-  background: var(--accent-highlight);
-  color: var(--accent-highlight-text);
+  background: #ECFDF5;
+  color: #059669;
   font-weight: 700;
 }
 
@@ -171,45 +224,66 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 
 .badge-amber {
-  background: var(--signal-amber-light);
-  color: #8C6114;
+  background: var(--status-review-bg);
+  color: var(--status-review);
 }
 
 .badge-red {
-  background: var(--risk-red-light);
-  color: var(--risk-red);
+  background: var(--status-critical-bg);
+  color: var(--status-critical);
 }
 
 .badge-neutral {
-  background: var(--bg-surface-muted);
+  background: var(--bg-surface-secondary);
   color: var(--text-secondary);
 }
 
-/* Card Surfaces */
+/* Editorial & Science Cards */
+.editorial-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-divider);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.editorial-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-md);
+}
+
 .surface-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-divider);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-xs);
 }
 
 .surface-elevated {
   background: var(--bg-surface);
   border: 1px solid var(--border-divider);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
 }
 
 .surface-dark {
-  background: var(--bg-deep-workspace);
+  background: var(--deep-navy);
   color: var(--text-inverse);
   border: 1px solid var(--border-dark);
 }
 
+/* Subtle scientific grid pattern */
+.bg-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(224, 232, 240, 0.4) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(224, 232, 240, 0.4) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
 /* Scrollbars */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -219,5 +293,20 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   border-radius: var(--radius-full);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+  background: var(--border-strong);
+}
+
+/* Print Stylesheet */
+@media print {
+  header, nav, .no-print, button {
+    display: none !important;
+  }
+  body, #root, main {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+  .surface-card, .editorial-card {
+    border: 1px solid #CCCCCC !important;
+    box-shadow: none !important;
+  }
 }

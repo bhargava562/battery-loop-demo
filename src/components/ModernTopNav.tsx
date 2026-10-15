@@ -1,5 +1,5 @@
 import React from 'react';
-import { Download, RotateCcw, Plus, Layers, LayoutDashboard, FileSpreadsheet, FileCheck2 } from 'lucide-react';
+import { Download, RotateCcw, Plus, Layers, FileSpreadsheet, FileCheck2, Compass } from 'lucide-react';
 import type { BatteryCase } from '../features/assessment/assessment.types';
 import { type AppRoute, navigate } from '../app/routes';
 import { BatteryLoopBrandMark } from './BatteryLoopBrandMark';
@@ -22,49 +22,50 @@ export const ModernTopNav: React.FC<ModernTopNavProps> = ({
   onExportAudit,
 }) => {
   const isNavActive = (key: string): boolean => {
-    if (key === 'workspace') return currentRoute.type === 'workspace';
-    if (key === 'batteries') return currentRoute.type === 'batteries';
+    if (key === 'overview') return currentRoute.type === 'overview';
+    if (key === 'assessments') return currentRoute.type === 'workspace' || currentRoute.type === 'batteries';
     if (key === 'evidence') return currentRoute.type === 'battery-case' && currentRoute.tab === 'import';
-    if (key === 'dossiers') return currentRoute.type === 'dossiers' || (currentRoute.type === 'battery-case' && currentRoute.tab === 'decision');
+    if (key === 'reports') return currentRoute.type === 'dossiers' || (currentRoute.type === 'battery-case' && currentRoute.tab === 'decision');
     return false;
   };
 
   return (
     <header
       style={{
-        height: 'var(--header-height, 54px)',
+        height: 'var(--header-height, 60px)',
         backgroundColor: '#FFFFFF',
-        borderBottom: '1px solid var(--border-divider, #DFE7E0)',
+        borderBottom: '1px solid var(--border-divider, #E0E8F0)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 24px',
+        padding: '0 28px',
         position: 'sticky',
         top: 0,
         zIndex: 50,
+        boxShadow: '0 1px 3px rgba(18, 36, 58, 0.03)',
       }}
     >
       {/* Left: Brand Wordmark + Primary Destinations */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '36px' }}>
         {/* Brand */}
         <div
-          onClick={() => navigate('#/workspace')}
+          onClick={() => navigate('#/overview')}
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: '10px',
             cursor: 'pointer',
           }}
-          title="BatteryLoop"
+          title="BatteryLoop — Battery Intelligence"
         >
-          <BatteryLoopBrandMark size={24} color="var(--bg-deep-forest, #10332F)" accentColor="var(--accent-primary, #087F73)" />
+          <BatteryLoopBrandMark size={24} color="var(--deep-navy, #102B46)" accentColor="var(--accent-cyan, #19B9D0)" />
           <span
             style={{
-              fontFamily: 'var(--font-display, "Sora")',
-              fontWeight: 700,
-              fontSize: '17px',
-              letterSpacing: '-0.03em',
-              color: 'var(--text-primary, #152825)',
+              fontFamily: 'var(--font-display, "Manrope")',
+              fontWeight: 800,
+              fontSize: '18px',
+              letterSpacing: '-0.035em',
+              color: 'var(--deep-navy, #102B46)',
             }}
           >
             BatteryLoop
@@ -74,10 +75,10 @@ export const ModernTopNav: React.FC<ModernTopNavProps> = ({
         {/* Top Navigation Links */}
         <nav style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           {[
-            { key: 'workspace', label: 'Workspace', path: '#/workspace', icon: LayoutDashboard },
-            { key: 'batteries', label: 'Cases', path: '#/batteries', icon: Layers },
-            { key: 'evidence', label: 'Evidence', path: `#/batteries/${battery.id}/import`, icon: FileSpreadsheet },
-            { key: 'dossiers', label: 'Dossiers', path: '#/dossiers', icon: FileCheck2 },
+            { key: 'overview', label: 'Overview', path: '#/overview', icon: Compass },
+            { key: 'assessments', label: 'Battery assessments', path: '#/assessments', icon: Layers },
+            { key: 'evidence', label: 'Evidence', path: `#/assessments/${battery.id}/evidence`, icon: FileSpreadsheet },
+            { key: 'reports', label: 'Reports', path: '#/reports', icon: FileCheck2 },
           ].map((item) => {
             const active = isNavActive(item.key);
             const Icon = item.icon;
@@ -90,18 +91,18 @@ export const ModernTopNav: React.FC<ModernTopNavProps> = ({
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',
-                  padding: '6px 14px',
-                  borderRadius: 'var(--radius-sm, 6px)',
-                  background: active ? 'var(--bg-surface-soft, #EAF0EA)' : 'transparent',
-                  color: active ? 'var(--text-primary, #152825)' : 'var(--text-secondary, #657670)',
-                  fontWeight: active ? 600 : 500,
+                  padding: '7px 14px',
+                  borderRadius: 'var(--radius-full)',
+                  background: active ? 'var(--soft-blue, #DCEEFF)' : 'transparent',
+                  color: active ? 'var(--deep-navy, #102B46)' : 'var(--text-secondary, #65758B)',
+                  fontWeight: active ? 700 : 500,
                   fontSize: '13px',
-                  fontFamily: 'var(--font-sans)',
+                  fontFamily: 'var(--font-display, "Manrope")',
                   transition: 'all 0.15s ease',
                   border: '1px solid transparent',
                 }}
               >
-                <Icon size={14} color={active ? 'var(--accent-primary, #087F73)' : 'var(--text-muted)'} />
+                <Icon size={14} color={active ? 'var(--accent-teal, #16A890)' : 'var(--text-muted)'} />
                 <span>{item.label}</span>
               </button>
             );
@@ -110,8 +111,8 @@ export const ModernTopNav: React.FC<ModernTopNavProps> = ({
       </div>
 
       {/* Center/Right: Case Selector, Status & Controls */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-        {/* Case Selector Dropdown (when inside case or available) */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {/* Case Selector Dropdown */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <select
             value={battery.id}
@@ -119,20 +120,21 @@ export const ModernTopNav: React.FC<ModernTopNavProps> = ({
               const newId = e.target.value;
               onSelectBattery(newId);
               if (currentRoute.type === 'battery-case') {
-                navigate(`#/batteries/${newId}/${currentRoute.tab}`);
+                navigate(`#/assessments/${newId}/${currentRoute.tab}`);
               }
             }}
             aria-label="Active Case"
             style={{
-              background: 'var(--bg-surface-soft, #EAF0EA)',
-              color: 'var(--text-primary, #152825)',
-              border: '1px solid var(--border-divider, #DFE7E0)',
-              borderRadius: 'var(--radius-sm, 6px)',
-              padding: '5px 12px',
+              background: 'var(--bg-surface-secondary, #F0F5FA)',
+              color: 'var(--text-primary, #12243A)',
+              border: '1px solid var(--border-divider, #E0E8F0)',
+              borderRadius: 'var(--radius-full)',
+              padding: '6px 14px',
               fontSize: '12px',
               fontWeight: 600,
               fontFamily: 'var(--font-mono)',
               cursor: 'pointer',
+              outline: 'none',
             }}
           >
             {allBatteries.map((b) => (
@@ -142,7 +144,7 @@ export const ModernTopNav: React.FC<ModernTopNavProps> = ({
             ))}
           </select>
 
-          {/* Conflict / Status Pill */}
+          {/* Status Pill */}
           <span
             className={
               battery.id === 'BL-003'
@@ -153,7 +155,7 @@ export const ModernTopNav: React.FC<ModernTopNavProps> = ({
                 ? 'badge badge-teal'
                 : 'badge badge-amber'
             }
-            style={{ fontSize: '11px', padding: '3px 8px' }}
+            style={{ fontSize: '11px', padding: '4px 10px' }}
           >
             {battery.id === 'BL-003'
               ? 'Conflict'
@@ -172,27 +174,27 @@ export const ModernTopNav: React.FC<ModernTopNavProps> = ({
             alignItems: 'center',
             gap: '5px',
             fontSize: '11px',
-            fontFamily: 'var(--font-sans)',
+            fontFamily: 'var(--font-mono)',
             fontWeight: 600,
             color: 'var(--text-secondary)',
-            background: 'var(--bg-surface-soft)',
+            background: 'var(--bg-surface-secondary)',
             border: '1px solid var(--border-divider)',
-            padding: '3px 8px',
-            borderRadius: 'var(--radius-xs)',
+            padding: '4px 8px',
+            borderRadius: 'var(--radius-full)',
           }}
         >
-          <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'var(--signal-amber)' }} />
+          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent-cyan)' }} />
           SIMULATED
         </span>
 
-        {/* New Assessment Action */}
+        {/* New Assessment Primary Action */}
         <button
-          onClick={() => navigate('#/batteries/new')}
+          onClick={() => navigate('#/assessments/new')}
           className="btn-primary"
-          style={{ padding: '6px 12px', fontSize: '12px' }}
+          style={{ padding: '7px 16px', fontSize: '13px' }}
         >
           <Plus size={14} />
-          <span>New Assessment</span>
+          <span>New assessment</span>
         </button>
 
         {/* Quick Tools */}
@@ -200,7 +202,7 @@ export const ModernTopNav: React.FC<ModernTopNavProps> = ({
           <button
             onClick={onExportAudit}
             className="btn-secondary"
-            style={{ padding: '6px 10px', fontSize: '12px' }}
+            style={{ padding: '6px 12px', fontSize: '12px' }}
             title="Export JSON Dossier"
           >
             <Download size={13} />
@@ -210,7 +212,7 @@ export const ModernTopNav: React.FC<ModernTopNavProps> = ({
           <button
             onClick={onResetCase}
             className="btn-secondary"
-            style={{ padding: '6px 8px', fontSize: '12px', color: 'var(--text-muted)' }}
+            style={{ padding: '6px 10px', fontSize: '12px', color: 'var(--text-muted)' }}
             title="Reset active case to baseline"
           >
             <RotateCcw size={12} />

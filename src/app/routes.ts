@@ -7,6 +7,7 @@ export type CaseTab =
   | 'decision';
 
 export type AppRoute =
+  | { type: 'overview' }
   | { type: 'workspace' }
   | { type: 'batteries' }
   | { type: 'battery-new' }
@@ -19,23 +20,33 @@ export function parseHash(hash: string): AppRoute {
   const clean = hash.replace(/^#\/?/, '').trim();
   const parts = clean.split('/').filter(Boolean);
 
-  if (parts.length === 0 || parts[0] === 'workspace') {
+  if (parts.length === 0 || parts[0] === 'overview') {
+    return { type: 'overview' };
+  }
+
+  if (parts[0] === 'workspace') {
     return { type: 'workspace' };
   }
-  if (parts[0] === 'batteries') {
+
+  if (parts[0] === 'assessments' || parts[0] === 'batteries') {
     if (parts[1] === 'new') {
       return { type: 'battery-new' };
     }
     if (parts[1]) {
       const batteryId = parts[1];
       const validTabs: CaseTab[] = ['inspect', 'import', 'assessment', 'review', 'simulate', 'decision'];
-      const rawTab = (parts[2] || 'inspect').toLowerCase();
+      let rawTab = (parts[2] || 'inspect').toLowerCase();
+      // Map synonyms
+      if (rawTab === 'inspection') rawTab = 'inspect';
+      if (rawTab === 'evidence') rawTab = 'import';
+      if (rawTab === 'report') rawTab = 'decision';
       const tab: CaseTab = validTabs.includes(rawTab as CaseTab) ? (rawTab as CaseTab) : 'inspect';
       return { type: 'battery-case', batteryId, tab };
     }
     return { type: 'batteries' };
   }
-  if (parts[0] === 'dossiers') {
+
+  if (parts[0] === 'dossiers' || parts[0] === 'reports') {
     return { type: 'dossiers' };
   }
   if (parts[0] === 'history') {
@@ -45,19 +56,21 @@ export function parseHash(hash: string): AppRoute {
     return { type: 'settings' };
   }
 
-  return { type: 'workspace' };
+  return { type: 'overview' };
 }
 
 export function routeToHash(route: AppRoute): string {
   switch (route.type) {
+    case 'overview':
+      return '#/overview';
     case 'workspace':
       return '#/workspace';
     case 'batteries':
-      return '#/batteries';
+      return '#/assessments';
     case 'battery-new':
-      return '#/batteries/new';
+      return '#/assessments/new';
     case 'battery-case':
-      return `#/batteries/${route.batteryId}/${route.tab}`;
+      return `#/assessments/${route.batteryId}/${route.tab}`;
     case 'dossiers':
       return '#/dossiers';
     case 'history':

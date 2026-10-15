@@ -3,6 +3,7 @@ import { useBatteryLoopStore } from '../state/useBatteryLoopStore';
 import { parseHash } from './routes';
 import { ModernTopNav } from '../components/ModernTopNav';
 import { LoopGuide } from '../components/LoopGuide';
+import { ProductOverviewScreen } from '../screens/ProductOverviewScreen';
 import { WorkspaceOverviewScreen } from '../screens/WorkspaceOverviewScreen';
 import { BatteryLibraryScreen } from '../screens/BatteryLibraryScreen';
 import { NewBatteryAssessmentScreen } from '../screens/NewBatteryAssessmentScreen';
@@ -63,7 +64,7 @@ export const AppShell: React.FC = () => {
     window.addEventListener('hashchange', handleHashChange);
     // Initialize default if hash is empty
     if (!window.location.hash) {
-      window.location.hash = '#/workspace';
+      window.location.hash = '#/overview';
     } else {
       handleHashChange();
     }
@@ -165,6 +166,14 @@ export const AppShell: React.FC = () => {
           minHeight: 0,
         }}
       >
+          {currentRoute.type === 'overview' && (
+            <ProductOverviewScreen
+              batteryCases={batteryCases}
+              humanDecisions={humanDecisions}
+              onSelectBattery={selectBattery}
+            />
+          )}
+
           {currentRoute.type === 'workspace' && (
             <WorkspaceOverviewScreen
               batteryCases={batteryCases}
